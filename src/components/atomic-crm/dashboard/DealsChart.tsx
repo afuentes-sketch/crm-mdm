@@ -1,10 +1,11 @@
 import { ResponsiveBar } from "@nivo/bar";
 import { format, startOfMonth } from "date-fns";
 import { TrendingUp } from "lucide-react";
-import { useGetList, useTranslate } from "ra-core";
+import { useGetList, useLocaleState, useTranslate } from "ra-core";
 import { memo, useMemo } from "react";
 
 import { findDealLabel } from "../deals/dealUtils";
+import { getDateFnsLocale } from "../misc/RelativeDate";
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal } from "../types";
 
@@ -24,6 +25,7 @@ const DEFAULT_LOCALE = "en-US";
 export const DealsChart = memo(() => {
   const translate = useTranslate();
   const { dealStages, currency } = useConfigurationContext();
+  const [locale = "en"] = useLocaleState();
   const acceptedLanguages = navigator
     ? navigator.languages || [navigator.language]
     : [DEFAULT_LOCALE];
@@ -53,7 +55,7 @@ export const DealsChart = memo(() => {
 
     const amountByMonth = Object.keys(dealsByMonth).map((month) => {
       return {
-        date: format(month, "MMM"),
+        date: format(month, "MMM", { locale: getDateFnsLocale(locale) }),
         won: dealsByMonth[month]
           .filter((deal: Deal) => deal.stage === "won")
           .reduce((acc: number, deal: Deal) => {
@@ -77,7 +79,7 @@ export const DealsChart = memo(() => {
     });
 
     return amountByMonth;
-  }, [data]);
+  }, [data, locale]);
 
   if (isPending) return null; // FIXME return skeleton instead
   const range = months.reduce(

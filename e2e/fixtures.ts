@@ -226,6 +226,17 @@ export const test = base.extend<{
   menu: ReturnType<typeof getMenuMethod>;
   dismissToast: (content: string) => Promise<void>;
 }>({
+  // The app defaults to Spanish, but the specs assert English UI strings:
+  // pin the stored react-admin locale to English before any page script runs.
+  page: async ({ page }, cb) => {
+    await page.addInitScript(() => {
+      const localeKey = "RaStoreCRM.locale";
+      if (window.localStorage.getItem(localeKey) === null) {
+        window.localStorage.setItem(localeKey, JSON.stringify("en"));
+      }
+    });
+    await cb(page);
+  },
   resetDb: [
     // The first argument to a Playwright fixture function must use object destructuring ({}) — _ is not allowed.
     // Playwright uses this to statically analyze which fixtures are requested.

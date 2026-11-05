@@ -131,7 +131,7 @@ describe("DataImportButton", () => {
     const { dataProvider, screen } = await renderImport(useCompanyImport, [
       {
         name: "Acme",
-        sector: "Information Technology",
+        sector: "Tecnologías de la información",
         size: 50,
         city: "New York",
         website: "https://acme.example",
@@ -198,8 +198,8 @@ describe("DataImportButton", () => {
       {
         name: "New website",
         company: "Acme",
-        categories: "Website design; Copywriting",
-        stage: "Proposal Sent",
+        categories: "Diseño web; Redacción",
+        stage: "Propuesta enviada",
         amount: "12000",
         expected_closing_date: "2026-09-30",
       },
@@ -233,9 +233,9 @@ describe("DataImportButton", () => {
     const { dataProvider, screen } = await renderImport(
       useDealImport,
       [
-        { name: "First", stage: "Opportunity" },
-        { name: "Second", stage: "Opportunity" },
-        { name: "Other column", stage: "Proposal Sent" },
+        { name: "First", stage: "Oportunidad" },
+        { name: "Second", stage: "Oportunidad" },
+        { name: "Other column", stage: "Propuesta enviada" },
       ],
       {
         deals: [
@@ -282,7 +282,7 @@ describe("DataImportButton", () => {
       .upload(
         csvFile("deals.csv", [
           "name,company,stage,amount,expected_closing_date",
-          "New website,Acme,Proposal Sent,4500.50,2026-09-30",
+          "New website,Acme,Propuesta enviada,4500.50,2026-09-30",
         ]),
       );
     await screen.getByRole("button", { name: "Start import" }).click();

@@ -12,56 +12,58 @@ export const defaultCurrency = "USD";
 
 export const defaultTitle = "Atomic CRM";
 
+// Labels are shown to users and are in Spanish (the app's default language).
+// Values are stored in the database and must stay stable.
 export const defaultCompanySectors = [
-  { value: "communication-services", label: "Communication Services" },
-  { value: "consumer-discretionary", label: "Consumer Discretionary" },
-  { value: "consumer-staples", label: "Consumer Staples" },
-  { value: "energy", label: "Energy" },
-  { value: "financials", label: "Financials" },
-  { value: "health-care", label: "Health Care" },
-  { value: "industrials", label: "Industrials" },
-  { value: "information-technology", label: "Information Technology" },
-  { value: "materials", label: "Materials" },
-  { value: "real-estate", label: "Real Estate" },
-  { value: "utilities", label: "Utilities" },
+  { value: "communication-services", label: "Servicios de comunicación" },
+  { value: "consumer-discretionary", label: "Consumo discrecional" },
+  { value: "consumer-staples", label: "Consumo básico" },
+  { value: "energy", label: "Energía" },
+  { value: "financials", label: "Finanzas" },
+  { value: "health-care", label: "Salud" },
+  { value: "industrials", label: "Industrial" },
+  { value: "information-technology", label: "Tecnologías de la información" },
+  { value: "materials", label: "Materiales" },
+  { value: "real-estate", label: "Bienes raíces" },
+  { value: "utilities", label: "Servicios públicos" },
 ];
 
 export const defaultDealStages = [
-  { value: "opportunity", label: "Opportunity" },
-  { value: "proposal-sent", label: "Proposal Sent" },
-  { value: "in-negociation", label: "In Negotiation" },
-  { value: "won", label: "Won" },
-  { value: "lost", label: "Lost" },
-  { value: "delayed", label: "Delayed" },
+  { value: "opportunity", label: "Oportunidad" },
+  { value: "proposal-sent", label: "Propuesta enviada" },
+  { value: "in-negociation", label: "En negociación" },
+  { value: "won", label: "Ganada" },
+  { value: "lost", label: "Perdida" },
+  { value: "delayed", label: "Pospuesta" },
 ];
 
 export const defaultDealPipelineStatuses = ["won"];
 
 export const defaultDealCategories = [
-  { value: "other", label: "Other" },
-  { value: "copywriting", label: "Copywriting" },
-  { value: "print-project", label: "Print project" },
-  { value: "ui-design", label: "UI Design" },
-  { value: "website-design", label: "Website design" },
+  { value: "other", label: "Otro" },
+  { value: "copywriting", label: "Redacción" },
+  { value: "print-project", label: "Proyecto de impresión" },
+  { value: "ui-design", label: "Diseño de interfaces" },
+  { value: "website-design", label: "Diseño web" },
 ];
 
 export const defaultNoteStatuses = [
-  { value: "cold", label: "Cold", color: "#7dbde8" },
-  { value: "warm", label: "Warm", color: "#e8cb7d" },
-  { value: "hot", label: "Hot", color: "#e88b7d" },
-  { value: "in-contract", label: "In Contract", color: "#a4e87d" },
+  { value: "cold", label: "Frío", color: "#7dbde8" },
+  { value: "warm", label: "Tibio", color: "#e8cb7d" },
+  { value: "hot", label: "Caliente", color: "#e88b7d" },
+  { value: "in-contract", label: "En contrato", color: "#a4e87d" },
 ];
 
 export const defaultTaskTypes = [
-  { value: "none", label: "None" },
-  { value: "email", label: "Email" },
-  { value: "demo", label: "Demo" },
-  { value: "lunch", label: "Lunch" },
-  { value: "meeting", label: "Meeting" },
-  { value: "follow-up", label: "Follow-up" },
-  { value: "thank-you", label: "Thank you" },
-  { value: "ship", label: "Ship" },
-  { value: "call", label: "Call" },
+  { value: "none", label: "Ninguno" },
+  { value: "email", label: "Correo" },
+  { value: "demo", label: "Demostración" },
+  { value: "lunch", label: "Comida" },
+  { value: "meeting", label: "Reunión" },
+  { value: "follow-up", label: "Seguimiento" },
+  { value: "thank-you", label: "Agradecimiento" },
+  { value: "ship", label: "Envío" },
+  { value: "call", label: "Llamada" },
 ];
 
 export const defaultConfiguration: ConfigurationContextValue = {

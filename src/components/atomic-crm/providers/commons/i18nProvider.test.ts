@@ -6,11 +6,25 @@ afterEach(() => {
 });
 
 describe("i18nProvider", () => {
-  it("registers en and fr locales", () => {
+  it("registers es, en and fr locales", () => {
     expect(i18nProvider.getLocales?.()).toEqual([
+      { locale: "es", name: "Español" },
       { locale: "en", name: "English" },
       { locale: "fr", name: "Français" },
     ]);
+  });
+
+  it("translates crm and react-admin keys in spanish", async () => {
+    await i18nProvider.changeLocale("es");
+
+    expect(i18nProvider.translate("crm.language")).toBe("Idioma");
+    expect(i18nProvider.translate("resources.deals.empty.title")).toBe(
+      "No se encontraron oportunidades",
+    );
+    expect(i18nProvider.translate("ra.action.save")).toBe("Guardar");
+    expect(i18nProvider.translate("ra-supabase.auth.forgot_password")).toBe(
+      "¿Olvidaste tu contraseña?",
+    );
   });
 
   it("translates the language key in french", async () => {
@@ -20,7 +34,7 @@ describe("i18nProvider", () => {
   });
 
   it("falls back to english for unknown locales", async () => {
-    await i18nProvider.changeLocale("es");
+    await i18nProvider.changeLocale("de");
 
     expect(i18nProvider.translate("crm.language")).toBe("Language");
   });
@@ -45,21 +59,12 @@ describe("i18nProvider", () => {
     );
   });
 
-  it("uses browser french locale when available", () => {
+  it("defaults to spanish whatever the browser language", () => {
     vi.stubGlobal("navigator", {
-      language: "fr-FR",
-      languages: ["fr-FR", "en-US"],
+      language: "en-US",
+      languages: ["en-US", "fr-FR"],
     });
 
-    expect(getInitialLocale()).toBe("fr");
-  });
-
-  it("falls back to english when browser locale is unsupported", () => {
-    vi.stubGlobal("navigator", {
-      language: "es-ES",
-      languages: ["es-ES", "pt-BR"],
-    });
-
-    expect(getInitialLocale()).toBe("en");
+    expect(getInitialLocale()).toBe("es");
   });
 });

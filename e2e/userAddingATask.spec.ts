@@ -63,7 +63,7 @@ test.describe("user adding a task", () => {
     await page.getByLabel("Description *").fill("Follow up with Jane");
     await page.getByLabel("Due date").fill("2026-04-11T21:00");
     await page.getByLabel("Type").click();
-    await page.getByRole("option", { name: "Call" }).click();
+    await page.getByRole("option", { name: "Llamada" }).click();
 
     await page.getByRole("button", { name: "Save" }).click();
 
