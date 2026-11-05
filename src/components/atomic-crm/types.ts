@@ -175,7 +175,8 @@ export type Tag = {
 };
 
 export type Task = {
-  contact_id: Identifier;
+  /** null for a general task, not about a specific contact */
+  contact_id: Identifier | null;
   type: string;
   text: string;
   due_date: string;

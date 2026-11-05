@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MoreVertical } from "lucide-react";
 import {
   useDeleteWithUndoController,
+  useGetIdentity,
   useGetRecordRepresentation,
   useNotify,
   useTranslate,
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
-import type { Contact, Task as TData } from "../types";
+import type { Contact, Sale, Task as TData } from "../types";
 import { TaskEdit } from "./TaskEdit";
 import { TaskEditSheet } from "./TaskEditSheet";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -38,6 +39,10 @@ export const Task = ({
   const translate = useTranslate();
   const queryClient = useQueryClient();
   const getContactRepresentation = useGetRecordRepresentation("contacts");
+  const { identity } = useGetIdentity();
+  // In a list mixing several people's tasks, say whose task it is
+  const showAssignee =
+    showContact && task.sales_id != null && task.sales_id !== identity?.id;
 
   const [openEdit, setOpenEdit] = useState(false);
 
@@ -143,6 +148,25 @@ export const Task = ({
                       </>
                     );
                   }}
+                />
+              )}
+              {showAssignee && (
+                <ReferenceField<TData, Sale>
+                  source="sales_id"
+                  reference="sales"
+                  record={task}
+                  link={false}
+                  className="inline text-sm text-muted-foreground"
+                  render={({ referenceRecord }) =>
+                    referenceRecord ? (
+                      <>
+                        {" · "}
+                        {translate("resources.tasks.assigned_to", {
+                          name: `${referenceRecord.first_name} ${referenceRecord.last_name}`,
+                        })}
+                      </>
+                    ) : null
+                  }
                 />
               )}
             </div>

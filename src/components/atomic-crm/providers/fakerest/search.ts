@@ -184,7 +184,8 @@ export async function getSearchResults(
               resource: "tasks",
               record_id: task.id,
               title: task.text?.slice(0, TITLE_LENGTH) ?? null,
-              subtitle: contactLabel(task.contact_id),
+              subtitle:
+                task.contact_id == null ? null : contactLabel(task.contact_id),
               contact_id: task.contact_id,
               deal_id: null,
               date: task.created_at ?? null,

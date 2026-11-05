@@ -7,10 +7,14 @@ import { DateTimeInput } from "@/components/admin";
 
 import { contactOptionText } from "../misc/ContactOption";
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import type { Sale } from "../types";
+
+const saleOptionText = (sale: Sale) => `${sale.first_name} ${sale.last_name}`;
 
 export const TaskFormContent = ({
   selectContact,
 }: {
+  /** Task created from a list: pick its contact (optional) and its owner. */
   selectContact?: boolean;
 }) => {
   const { taskTypes } = useConfigurationContext();
@@ -27,15 +31,29 @@ export const TaskFormContent = ({
         helperText={false}
       />
       {selectContact && (
-        <ReferenceInput source="contact_id" reference="contacts_summary">
-          <AutocompleteInput
-            label="resources.tasks.fields.contact_id"
-            optionText={contactOptionText}
-            helperText={false}
-            validate={required()}
-            modal
-          />
-        </ReferenceInput>
+        <>
+          <ReferenceInput
+            source="sales_id"
+            reference="sales"
+            sort={{ field: "last_name", order: "ASC" }}
+          >
+            <SelectInput
+              label="resources.tasks.fields.sales_id"
+              optionText={saleOptionText}
+              helperText={false}
+              validate={required()}
+            />
+          </ReferenceInput>
+          {/* Optional: leave it empty for a general task */}
+          <ReferenceInput source="contact_id" reference="contacts_summary">
+            <AutocompleteInput
+              label="resources.tasks.fields.contact_id"
+              optionText={contactOptionText}
+              helperText={false}
+              modal
+            />
+          </ReferenceInput>
+        </>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

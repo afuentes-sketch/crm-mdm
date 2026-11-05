@@ -54,19 +54,22 @@ export const TaskCreateSheet = ({
 
   const handleSuccess = async (data: any) => {
     const referenceRecordId = data[foreignKeyMapping["contacts"]];
-    if (!referenceRecordId) return;
-    const { data: contact } = await dataProvider.getOne("contacts", {
-      id: referenceRecordId,
-    });
-    if (!contact) return;
-    await update("contacts", {
-      id: referenceRecordId as unknown as Identifier,
-      data: { last_seen: new Date().toISOString() },
-      previousData: contact,
-    });
-    queryClient.invalidateQueries({
-      queryKey: ["contacts", "getOne"],
-    });
+    // A general task has no contact whose last activity should move
+    if (referenceRecordId) {
+      const { data: contact } = await dataProvider.getOne("contacts", {
+        id: referenceRecordId,
+      });
+      if (contact) {
+        await update("contacts", {
+          id: referenceRecordId as unknown as Identifier,
+          data: { last_seen: new Date().toISOString() },
+          previousData: contact,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["contacts", "getOne"],
+        });
+      }
+    }
 
     notify("resources.tasks.added");
     if (!selectContact) {

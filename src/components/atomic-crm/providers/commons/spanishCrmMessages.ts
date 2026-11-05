@@ -322,7 +322,9 @@ export const spanishCrmMessages = {
         type: "Tipo",
         contact_id: "Contacto",
         due_short: "vence",
+        sales_id: "Asignada a",
       },
+      assigned_to: "para %{name}",
       action: {
         add: "Agregar tarea",
         create: "Crear tarea",
@@ -445,6 +447,12 @@ export const spanishCrmMessages = {
         whats_next: "¿Qué sigue?",
       },
       upcoming_tasks: "Próximas tareas",
+      status_empty: "Sin contactos",
+      show_all: "Ver todos (%{smart_count})",
+      tasks_for: {
+        mine: "Mis tareas",
+        all: "Tareas de todos",
+      },
     },
     data_import: {
       button: "Importar CSV",

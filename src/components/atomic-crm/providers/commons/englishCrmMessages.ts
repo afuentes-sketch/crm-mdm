@@ -319,7 +319,9 @@ export const englishCrmMessages = {
         type: "Type",
         contact_id: "Contact",
         due_short: "due",
+        sales_id: "Assigned to",
       },
+      assigned_to: "for %{name}",
       action: {
         add: "Add task",
         create: "Create task",
@@ -441,6 +443,12 @@ export const englishCrmMessages = {
         whats_next: "What's next?",
       },
       upcoming_tasks: "Upcoming Tasks",
+      status_empty: "No contacts",
+      show_all: "Show all (%{smart_count})",
+      tasks_for: {
+        mine: "My tasks",
+        all: "Everyone's tasks",
+      },
     },
     data_import: {
       button: "Import CSV",
