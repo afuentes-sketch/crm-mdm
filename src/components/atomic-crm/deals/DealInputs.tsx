@@ -1,4 +1,4 @@
-import { required, useTranslate } from "ra-core";
+import { required, useRecordContext, useTranslate } from "ra-core";
 import { AutocompleteArrayInput } from "@/components/admin/autocomplete-array-input";
 import { ReferenceArrayInput } from "@/components/admin/reference-array-input";
 import { ReferenceInput } from "@/components/admin/reference-input";
@@ -9,7 +9,9 @@ import { SelectInput } from "@/components/admin/select-input";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+import { isGuardedStage, STAGE_NEW } from "../followup/followUpRules";
 import { useConfigurationContext } from "../root/ConfigurationContext";
+import type { Deal, Sale } from "../types";
 import { AutocompleteCompanyInput } from "../companies/AutocompleteCompanyInput.tsx";
 import { AutocompleteContactInput } from "../contacts/AutocompleteContactInput.tsx";
 
@@ -59,9 +61,17 @@ const DealLinkedToInputs = () => {
   );
 };
 
+const saleOptionText = (sale: Sale) => `${sale.first_name} ${sale.last_name}`;
+
 const DealMiscInputs = () => {
   const { dealStages, dealCategories } = useConfigurationContext();
   const translate = useTranslate();
+  const record = useRecordContext<Deal>();
+  // Paused, review, won and lost need extra details (resume date, reason,
+  // purchase order): they are set from the follow-up page, not from here.
+  const stageChoices = dealStages.filter(
+    (stage) => !isGuardedStage(stage.value) || stage.value === record?.stage,
+  );
   return (
     <div className="flex flex-col gap-4 flex-1">
       <h6 className="text-lg font-semibold">
@@ -89,12 +99,34 @@ const DealMiscInputs = () => {
       />
       <SelectInput
         source="stage"
-        choices={dealStages}
+        choices={stageChoices}
         optionText="label"
         optionValue="value"
-        defaultValue="opportunity"
+        defaultValue={STAGE_NEW}
         helperText={false}
         validate={required()}
+      />
+      <ReferenceInput
+        source="sales_id"
+        reference="sales"
+        sort={{ field: "last_name", order: "ASC" }}
+      >
+        <SelectInput
+          label="resources.deals.fields.sales_id"
+          optionText={saleOptionText}
+          helperText={false}
+          validate={required()}
+        />
+      </ReferenceInput>
+      <TextInput
+        source="next_action"
+        label="crm.followup.fields.next_action"
+        helperText={false}
+      />
+      <DateInput
+        source="next_action_date"
+        label="crm.followup.fields.next_action_date"
+        helperText={false}
       />
     </div>
   );

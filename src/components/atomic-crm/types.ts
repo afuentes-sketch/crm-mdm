@@ -128,6 +128,33 @@ export type Deal = {
   expected_closing_date: string;
   sales_id: Identifier;
   index: number;
+  // Sales follow-up
+  assigned_by?: Identifier | null;
+  next_action?: string | null;
+  next_action_date?: string | null;
+  reminders_muted?: boolean;
+  /** Unanswered attempts before this time no longer count (set on review). */
+  attempts_reset_at?: string | null;
+  resume_date?: string | null;
+  lost_reason?: string | null;
+  po_number?: string | null;
+  po_date?: string | null;
+  po_url?: string | null;
+  quote_number?: string | null;
+  quote_amount?: number | null;
+  quote_url?: string | null;
+  quote_sent_date?: string | null;
+} & Pick<RaRecord, "id">;
+
+export type DealActivityChannel = "call" | "whatsapp" | "email" | "visit";
+
+export type DealActivity = {
+  deal_id: Identifier;
+  sales_id?: Identifier | null;
+  date: string;
+  channel: DealActivityChannel;
+  answered: boolean;
+  notes?: string | null;
 } & Pick<RaRecord, "id">;
 
 export type DealNote = {

@@ -1,4 +1,4 @@
-import type { CrmMessages } from "./englishCrmMessages";
+import type { PartialCrmMessages } from "./englishCrmMessages";
 
 export const frenchCrmMessages = {
   resources: {
@@ -614,4 +614,4 @@ export const frenchCrmMessages = {
       invalid_linkedin_url: "L'URL doit provenir de linkedin.com",
     },
   },
-} satisfies CrmMessages;
+} satisfies PartialCrmMessages;

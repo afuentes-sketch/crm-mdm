@@ -86,6 +86,9 @@ grant all on table public.deal_notes to anon;
 grant all on table public.deal_notes to authenticated;
 grant all on table public.deal_notes to service_role;
 
+grant select, insert on table public.deal_activities to authenticated;
+grant all on table public.deal_activities to service_role;
+
 grant all on table public.sales to anon;
 grant all on table public.sales to authenticated;
 grant all on table public.sales to service_role;
@@ -146,6 +149,9 @@ grant all on sequence public."dealNotes_id_seq" to service_role;
 grant all on sequence public.deals_id_seq to anon;
 grant all on sequence public.deals_id_seq to authenticated;
 grant all on sequence public.deals_id_seq to service_role;
+
+grant usage, select on sequence public.deal_activities_id_seq to authenticated;
+grant all on sequence public.deal_activities_id_seq to service_role;
 
 grant all on sequence public.favicons_excluded_domains_id_seq to anon;
 grant all on sequence public.favicons_excluded_domains_id_seq to authenticated;

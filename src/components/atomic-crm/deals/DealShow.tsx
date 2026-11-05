@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { isValid } from "date-fns";
-import { Archive, ArchiveRestore } from "lucide-react";
+import { Archive, ArchiveRestore, ListChecks } from "lucide-react";
 import {
   InfiniteListBase,
   ShowBase,
@@ -22,7 +22,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 
+import { Link } from "react-router";
+
 import { CompanyAvatar } from "../companies/CompanyAvatar";
+import { FOLLOW_UP_PATH } from "../followup/followUpRules";
 import { NoteCreate } from "../notes/NoteCreate";
 import { NotesIterator } from "../notes/NotesIterator";
 import { useConfigurationContext } from "../root/ConfigurationContext";
@@ -84,6 +87,14 @@ const DealShowContent = () => {
                 </>
               ) : (
                 <>
+                  <Button
+                    size="sm"
+                    nativeButton={false}
+                    render={<Link to={`${FOLLOW_UP_PATH}/${record.id}`} />}
+                  >
+                    <ListChecks />
+                    {translate("crm.followup.actions.open")}
+                  </Button>
                   <ArchiveButton record={record} />
                   <EditButton />
                 </>

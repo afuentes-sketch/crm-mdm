@@ -18,6 +18,7 @@ export default (): Db => {
   db.contact_notes = generateContactNotes(db);
   db.deals = generateDeals(db);
   db.deal_notes = generateDealNotes(db);
+  db.deal_activities = [];
   db.tasks = generateTasks(db);
   db.configuration = [
     {

@@ -600,6 +600,46 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/followup/useFollowUpData.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/followUpRules.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/followUpActions.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/FollowUpShow.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/FollowUpParts.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/FollowUpPage.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/FollowUpHelpButton.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/FollowUpDialogs.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/FollowUpDialog.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/followup/FollowUpBell.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/filters/FilterCategory.tsx",
           "type": "registry:component"
         },

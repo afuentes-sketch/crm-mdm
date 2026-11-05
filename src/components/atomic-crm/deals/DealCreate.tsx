@@ -7,10 +7,12 @@ import {
   useGetIdentity,
   useListContext,
   useRedirect,
+  useTranslate,
   type GetListResult,
 } from "ra-core";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
+import { toISODate } from "../followup/followUpRules";
 import { FormToolbar } from "../layout/FormToolbar";
 import type { Deal } from "../types";
 import { DealInputs } from "./DealInputs";
@@ -71,17 +73,34 @@ export const DealCreate = ({ open }: { open: boolean }) => {
   };
 
   const { identity } = useGetIdentity();
+  const translate = useTranslate();
+
+  // The follow-up starts when the deal is registered. A deal created for
+  // someone else is an assignment: remember who assigned it.
+  const transform = (data: Deal): Deal => ({
+    ...data,
+    assigned_by:
+      identity?.id != null && data.sales_id !== identity.id
+        ? identity.id
+        : null,
+  });
 
   return (
     <Dialog open={open} onOpenChange={() => handleClose()}>
       <DialogContent className="lg:max-w-4xl overflow-y-auto max-h-9/10 top-1/20 translate-y-0">
-        <CreateBase resource="deals" mutationOptions={{ onSuccess }}>
+        <CreateBase
+          resource="deals"
+          mutationOptions={{ onSuccess }}
+          transform={transform}
+        >
           <CreateHeader />
           <Form
             defaultValues={{
               sales_id: identity?.id,
               contact_ids: [],
               index: 0,
+              next_action: translate("crm.followup.defaults.first_contact"),
+              next_action_date: toISODate(new Date()),
             }}
           >
             <DealInputs />

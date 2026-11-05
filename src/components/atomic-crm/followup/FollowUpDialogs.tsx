@@ -1,0 +1,402 @@
+import {
+  useGetIdentity,
+  useLocaleState,
+  useNotify,
+  useTranslate,
+} from "ra-core";
+import { useEffect, useState } from "react";
+
+import { formatISODateString } from "../deals/dealUtils";
+import type { Deal, DealActivityChannel } from "../types";
+import {
+  ChoiceButtons,
+  FollowUpDialog,
+  TextAreaField,
+  TextField,
+} from "./FollowUpDialog";
+import {
+  lostPatch,
+  pausePatch,
+  recordContactAttempt,
+  wonPatch,
+} from "./followUpActions";
+import { addDays } from "./followUpRules";
+import { useDealUpdater, useToday } from "./useFollowUpData";
+
+export interface DealDialogProps {
+  deal: Deal;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const CHANNELS: DealActivityChannel[] = ["call", "whatsapp", "email", "visit"];
+
+export const RegisterContactDialog = ({
+  deal,
+  open,
+  onOpenChange,
+}: DealDialogProps) => {
+  const translate = useTranslate();
+  const notify = useNotify();
+  const [locale = "en"] = useLocaleState();
+  const { identity } = useGetIdentity();
+  const { refresh, dataProvider } = useDealUpdater();
+  const today = useToday();
+  const [channel, setChannel] = useState<DealActivityChannel>();
+  const [answered, setAnswered] = useState<"yes" | "no">();
+  const [notes, setNotes] = useState("");
+  const [nextAction, setNextAction] = useState("");
+  const [nextActionDate, setNextActionDate] = useState(addDays(today, 7));
+
+  useEffect(() => {
+    if (!open) return;
+    setChannel(undefined);
+    setAnswered(undefined);
+    setNotes("");
+    setNextAction("");
+    setNextActionDate(addDays(today, 7));
+  }, [open, today]);
+
+  const onSave = async () => {
+    if (!channel || !answered) return false;
+    try {
+      const outcome = await recordContactAttempt({
+        dataProvider,
+        deal,
+        input: {
+          channel,
+          answered: answered === "yes",
+          notes,
+          nextAction,
+          nextActionDate,
+        },
+        salesId: identity?.id,
+        today,
+        retryActionLabel: translate("crm.followup.defaults.retry"),
+      });
+      await refresh();
+      if (outcome.sentToReview) {
+        notify(translate("crm.followup.messages.sent_to_review"), {
+          type: "warning",
+        });
+      } else if (answered === "no" && outcome.patch.next_action_date) {
+        notify(
+          translate("crm.followup.messages.retry_planned", {
+            date: formatISODateString(outcome.patch.next_action_date, locale),
+          }),
+          { type: "info" },
+        );
+      } else {
+        notify(translate("crm.followup.messages.registered"), {
+          type: "success",
+        });
+      }
+      return true;
+    } catch {
+      notify(translate("crm.followup.messages.error"), { type: "error" });
+      return false;
+    }
+  };
+
+  return (
+    <FollowUpDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={translate("crm.followup.dialogs.register_title")}
+      description={deal.name}
+      onSave={onSave}
+      canSave={!!channel && !!answered && (answered === "no" || !!nextAction)}
+    >
+      <ChoiceButtons
+        label={translate("crm.followup.fields.channel")}
+        options={CHANNELS.map((value) => ({
+          value,
+          label: translate(`crm.followup.channels.${value}`),
+        }))}
+        value={channel}
+        onChange={setChannel}
+      />
+      <ChoiceButtons
+        label={translate("crm.followup.fields.answered")}
+        options={[
+          { value: "yes", label: translate("crm.followup.answered_yes") },
+          { value: "no", label: translate("crm.followup.answered_no") },
+        ]}
+        value={answered}
+        onChange={setAnswered}
+      />
+      <TextAreaField
+        id="followup-notes"
+        label={translate("crm.followup.fields.notes")}
+        value={notes}
+        onChange={setNotes}
+      />
+      {answered === "yes" ? (
+        <>
+          <TextField
+            id="followup-next-action"
+            label={translate("crm.followup.fields.next_action")}
+            value={nextAction}
+            onChange={setNextAction}
+            required
+          />
+          <TextField
+            id="followup-next-action-date"
+            type="date"
+            label={translate("crm.followup.fields.next_action_date")}
+            value={nextActionDate}
+            onChange={setNextActionDate}
+            required
+          />
+        </>
+      ) : null}
+    </FollowUpDialog>
+  );
+};
+
+export const NextActionDialog = ({
+  deal,
+  open,
+  onOpenChange,
+}: DealDialogProps) => {
+  const translate = useTranslate();
+  const { save } = useDealUpdater();
+  const today = useToday();
+  const [nextAction, setNextAction] = useState("");
+  const [nextActionDate, setNextActionDate] = useState(today);
+
+  useEffect(() => {
+    if (!open) return;
+    setNextAction(deal.next_action ?? "");
+    setNextActionDate(deal.next_action_date ?? today);
+  }, [open, deal, today]);
+
+  return (
+    <FollowUpDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={translate("crm.followup.dialogs.next_action_title")}
+      description={deal.name}
+      canSave={!!nextAction.trim() && !!nextActionDate}
+      onSave={() =>
+        save(
+          deal,
+          {
+            next_action: nextAction.trim(),
+            next_action_date: nextActionDate,
+          },
+          translate("crm.followup.messages.saved"),
+        )
+      }
+    >
+      <TextField
+        id="next-action"
+        label={translate("crm.followup.fields.next_action")}
+        value={nextAction}
+        onChange={setNextAction}
+        required
+      />
+      <TextField
+        id="next-action-date"
+        type="date"
+        label={translate("crm.followup.fields.next_action_date")}
+        value={nextActionDate}
+        onChange={setNextActionDate}
+        required
+      />
+    </FollowUpDialog>
+  );
+};
+
+export const PauseDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
+  const translate = useTranslate();
+  const { save } = useDealUpdater();
+  const today = useToday();
+  const [resumeDate, setResumeDate] = useState(addDays(today, 30));
+
+  useEffect(() => {
+    if (open) setResumeDate(addDays(today, 30));
+  }, [open, today]);
+
+  return (
+    <FollowUpDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={translate("crm.followup.dialogs.pause_title")}
+      description={translate("crm.followup.dialogs.pause_help")}
+      saveLabel={translate("crm.followup.actions.pause")}
+      canSave={!!resumeDate && resumeDate > today}
+      onSave={() =>
+        save(
+          deal,
+          pausePatch(resumeDate),
+          translate("crm.followup.messages.paused"),
+        )
+      }
+    >
+      <TextField
+        id="resume-date"
+        type="date"
+        label={translate("crm.followup.fields.resume_date")}
+        value={resumeDate}
+        onChange={setResumeDate}
+        required
+      />
+    </FollowUpDialog>
+  );
+};
+
+export const WonDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
+  const translate = useTranslate();
+  const { save } = useDealUpdater();
+  const today = useToday();
+  const [poNumber, setPoNumber] = useState("");
+  const [poDate, setPoDate] = useState(today);
+  const [poUrl, setPoUrl] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+    setPoNumber(deal.po_number ?? "");
+    setPoDate(deal.po_date ?? today);
+    setPoUrl(deal.po_url ?? "");
+  }, [open, deal, today]);
+
+  return (
+    <FollowUpDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={translate("crm.followup.dialogs.won_title")}
+      description={translate("crm.followup.dialogs.won_help")}
+      saveLabel={translate("crm.followup.actions.won")}
+      canSave={!!poNumber.trim() && !!poDate}
+      onSave={() =>
+        save(
+          deal,
+          wonPatch({ poNumber, poDate, poUrl }),
+          translate("crm.followup.messages.won"),
+        )
+      }
+    >
+      <TextField
+        id="po-number"
+        label={translate("crm.followup.fields.po_number")}
+        value={poNumber}
+        onChange={setPoNumber}
+        required
+      />
+      <TextField
+        id="po-date"
+        type="date"
+        label={translate("crm.followup.fields.po_date")}
+        value={poDate}
+        onChange={setPoDate}
+        required
+      />
+      <TextField
+        id="po-url"
+        type="url"
+        label={translate("crm.followup.fields.po_url")}
+        value={poUrl}
+        onChange={setPoUrl}
+      />
+    </FollowUpDialog>
+  );
+};
+
+export const LostDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
+  const translate = useTranslate();
+  const { save } = useDealUpdater();
+  const [reason, setReason] = useState("");
+
+  useEffect(() => {
+    if (open) setReason(deal.lost_reason ?? "");
+  }, [open, deal]);
+
+  return (
+    <FollowUpDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={translate("crm.followup.dialogs.lost_title")}
+      description={translate("crm.followup.dialogs.lost_help")}
+      saveLabel={translate("crm.followup.actions.lost")}
+      canSave={!!reason.trim()}
+      onSave={() =>
+        save(deal, lostPatch(reason), translate("crm.followup.messages.lost"))
+      }
+    >
+      <TextAreaField
+        id="lost-reason"
+        label={translate("crm.followup.fields.lost_reason")}
+        value={reason}
+        onChange={setReason}
+        required
+      />
+    </FollowUpDialog>
+  );
+};
+
+export const QuoteDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
+  const translate = useTranslate();
+  const { save } = useDealUpdater();
+  const [quoteUrl, setQuoteUrl] = useState("");
+  const [quoteNumber, setQuoteNumber] = useState("");
+  const [quoteAmount, setQuoteAmount] = useState("");
+  const [quoteSentDate, setQuoteSentDate] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+    setQuoteUrl(deal.quote_url ?? "");
+    setQuoteNumber(deal.quote_number ?? "");
+    setQuoteAmount(deal.quote_amount != null ? String(deal.quote_amount) : "");
+    setQuoteSentDate(deal.quote_sent_date ?? "");
+  }, [open, deal]);
+
+  return (
+    <FollowUpDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={translate("crm.followup.dialogs.quote_title")}
+      description={deal.name}
+      onSave={() =>
+        save(
+          deal,
+          {
+            quote_url: quoteUrl.trim() || null,
+            quote_number: quoteNumber.trim() || null,
+            quote_amount: quoteAmount === "" ? null : Math.round(+quoteAmount),
+            quote_sent_date: quoteSentDate || null,
+          },
+          translate("crm.followup.messages.saved"),
+        )
+      }
+    >
+      <TextField
+        id="quote-url"
+        type="url"
+        label={translate("crm.followup.fields.quote_url")}
+        value={quoteUrl}
+        onChange={setQuoteUrl}
+      />
+      <TextField
+        id="quote-number"
+        label={translate("crm.followup.fields.quote_number")}
+        value={quoteNumber}
+        onChange={setQuoteNumber}
+      />
+      <TextField
+        id="quote-amount"
+        type="number"
+        label={translate("crm.followup.fields.quote_amount")}
+        value={quoteAmount}
+        onChange={setQuoteAmount}
+      />
+      <TextField
+        id="quote-sent-date"
+        type="date"
+        label={translate("crm.followup.fields.quote_sent_date")}
+        value={quoteSentDate}
+        onChange={setQuoteSentDate}
+      />
+    </FollowUpDialog>
+  );
+};

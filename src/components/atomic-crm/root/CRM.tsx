@@ -34,6 +34,9 @@ import sales from "../sales";
 import { SettingsPageMobile } from "../settings/SettingsPageMobile";
 import { ProfilePage } from "../settings/ProfilePage";
 import { SettingsPage } from "../settings/SettingsPage";
+import { FollowUpPage } from "../followup/FollowUpPage";
+import { FollowUpShow } from "../followup/FollowUpShow";
+import { FOLLOW_UP_PATH } from "../followup/followUpRules";
 import {
   CONFIGURATION_STORE_KEY,
   type ConfigurationContextValue,
@@ -261,8 +264,11 @@ const DesktopAdmin = (
         <Route path={SettingsPage.path} element={<SettingsPage />} />
         <Route path={ImportPage.path} element={<ImportPage />} />
         <Route path={ChangelogPage.path} element={<ChangelogPage />} />
+        <Route path={FOLLOW_UP_PATH} element={<FollowUpPage />} />
+        <Route path={`${FOLLOW_UP_PATH}/:id`} element={<FollowUpShow />} />
       </CustomRoutes>
       <Resource name="deals" {...deals} />
+      <Resource name="deal_activities" />
       <Resource name="contacts" {...contacts} />
       <Resource name="companies" {...companies} />
       <Resource name="contact_notes" />
@@ -336,7 +342,10 @@ const MobileAdmin = (
             element={<SettingsPageMobile />}
           />
           <Route path={ChangelogPage.path} element={<ChangelogPage />} />
+          <Route path={FOLLOW_UP_PATH} element={<FollowUpPage />} />
+          <Route path={`${FOLLOW_UP_PATH}/:id`} element={<FollowUpShow />} />
         </CustomRoutes>
+        <Resource name="deal_activities" />
         <Resource
           name="contacts"
           list={ContactListMobile}

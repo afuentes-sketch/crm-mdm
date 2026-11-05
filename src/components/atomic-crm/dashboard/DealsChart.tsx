@@ -9,11 +9,16 @@ import { getDateFnsLocale } from "../misc/RelativeDate";
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal } from "../types";
 
+// Probability of closing, to weigh the expected revenue of open deals
 const multiplier = {
-  opportunity: 0.2,
-  "proposal-sent": 0.5,
-  "in-negociation": 0.8,
-  delayed: 0.3,
+  new: 0.1,
+  "gathering-info": 0.2,
+  "pending-quote": 0.3,
+  "quote-ready": 0.4,
+  "quote-sent": 0.5,
+  negotiation: 0.7,
+  "pending-review": 0.2,
+  paused: 0.2,
 };
 
 const threeMonthsAgo = new Date(

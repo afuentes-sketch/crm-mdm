@@ -9,6 +9,7 @@ alter table public.contacts enable row level security;
 alter table public.contact_notes enable row level security;
 alter table public.deals enable row level security;
 alter table public.deal_notes enable row level security;
+alter table public.deal_activities enable row level security;
 alter table public.sales enable row level security;
 alter table public.tags enable row level security;
 alter table public.tasks enable row level security;
@@ -45,6 +46,10 @@ create policy "Enable read access for authenticated users" on public.deal_notes 
 create policy "Enable insert for authenticated users only" on public.deal_notes for insert to authenticated with check (true);
 create policy "Deal Notes Update Policy" on public.deal_notes for update to authenticated using (true);
 create policy "Deal Notes Delete Policy" on public.deal_notes for delete to authenticated using (true);
+
+-- Deal Activities (append-only contact history: no update policy)
+create policy "Enable read access for authenticated users" on public.deal_activities for select to authenticated using (true);
+create policy "Enable insert for authenticated users only" on public.deal_activities for insert to authenticated with check (true);
 
 -- Sales
 create policy "Enable read access for authenticated users" on public.sales for select to authenticated using (true);

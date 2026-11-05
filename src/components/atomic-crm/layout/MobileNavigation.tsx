@@ -6,13 +6,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { Home, ListTodo, Plus, Settings, Users } from "lucide-react";
+import {
+  Home,
+  ListChecks,
+  ListTodo,
+  Plus,
+  Settings,
+  Users,
+} from "lucide-react";
 import { useTranslate } from "ra-core";
 import { Link, matchPath, useLocation, useMatch } from "react-router";
 import { ContactCreateSheet } from "../contacts/ContactCreateSheet";
 import { useState } from "react";
 import { NoteCreateSheet } from "../notes/NoteCreateSheet";
 import { TaskCreateSheet } from "../tasks/TaskCreateSheet";
+import { FOLLOW_UP_PATH } from "../followup/followUpRules";
 
 export const MobileNavigation = () => {
   const location = useLocation();
@@ -29,6 +37,8 @@ export const MobileNavigation = () => {
     currentPath = "/tasks";
   } else if (matchPath("/deals/*", location.pathname)) {
     currentPath = "/deals";
+  } else if (matchPath(`${FOLLOW_UP_PATH}/*`, location.pathname)) {
+    currentPath = FOLLOW_UP_PATH;
   } else {
     currentPath = false;
   }
@@ -68,6 +78,12 @@ export const MobileNavigation = () => {
             })}
             isActive={currentPath === "/contacts"}
           />
+          <NavigationButton
+            href={FOLLOW_UP_PATH}
+            Icon={ListChecks}
+            label={translate("crm.followup.title")}
+            isActive={currentPath === FOLLOW_UP_PATH}
+          />
           <CreateButton />
           <NavigationButton
             href="/tasks"
@@ -97,7 +113,7 @@ const NavigationButton = ({
     to={href}
     className={cn(
       buttonVariants({ variant: "ghost" }),
-      "flex-col gap-1 h-auto py-2 px-1 rounded-md w-16",
+      "flex-col gap-1 h-auto py-2 px-1 rounded-md w-14",
       isActive ? null : "text-muted-foreground",
     )}
   >

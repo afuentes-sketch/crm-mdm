@@ -2,7 +2,15 @@ import { DragDropContext, type OnDragEndResponder } from "@hello-pangea/dnd";
 import isEqual from "lodash/isEqual";
 import { useDataProvider, useListContext, type DataProvider } from "ra-core";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
+import {
+  FOLLOW_UP_PATH,
+  isGuardedStage,
+  STAGE_LOST,
+  STAGE_PAUSED,
+  STAGE_WON,
+} from "../followup/followUpRules";
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal } from "../types";
 import { DealColumn } from "./DealColumn";
@@ -13,6 +21,7 @@ export const DealListContent = () => {
   const { dealStages } = useConfigurationContext();
   const { data: unorderedDeals, isPending, refetch } = useListContext<Deal>();
   const dataProvider = useDataProvider();
+  const navigate = useNavigate();
 
   const [dealsByStage, setDealsByStage] = useState<DealsByStage>(
     getDealsByStage([], dealStages),
@@ -46,6 +55,18 @@ export const DealListContent = () => {
 
     const sourceStage = source.droppableId;
     const destinationStage = destination.droppableId;
+
+    // Pausing, winning or losing a deal asks for details: open the follow-up
+    // page with the right dialog instead of moving the card. Review is only
+    // reached through the attempts rule.
+    if (sourceStage !== destinationStage && isGuardedStage(destinationStage)) {
+      const deal = dealsByStage[sourceStage][source.index];
+      const action = GUARDED_STAGE_ACTIONS[destinationStage];
+      if (deal && action) {
+        navigate(`${FOLLOW_UP_PATH}/${deal.id}?accion=${action}`);
+      }
+      return;
+    }
     const sourceDeal = dealsByStage[sourceStage][source.index]!;
     const destinationDeal = dealsByStage[destinationStage][
       destination.index
@@ -83,6 +104,12 @@ export const DealListContent = () => {
       </div>
     </DragDropContext>
   );
+};
+
+const GUARDED_STAGE_ACTIONS: Record<string, string> = {
+  [STAGE_WON]: "ganada",
+  [STAGE_LOST]: "perdida",
+  [STAGE_PAUSED]: "pausa",
 };
 
 const updateDealStageLocal = (
