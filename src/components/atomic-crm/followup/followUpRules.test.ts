@@ -156,6 +156,30 @@ describe("planAfterAttempt", () => {
     });
   });
 
+  it("applies the status chosen while registering an answered contact", () => {
+    const outcome = planAfterAttempt({
+      deal: deal({ stage: "pending-quote" }),
+      previousActivities: [],
+      attempt: { answered: true, stage: "quote-sent" },
+      today: TODAY,
+      retryActionLabel: "Try again",
+    });
+
+    expect(outcome.patch.stage).toBe("quote-sent");
+  });
+
+  it("ignores a closing status chosen while registering a contact", () => {
+    const outcome = planAfterAttempt({
+      deal: deal({ stage: "negotiation" }),
+      previousActivities: [],
+      attempt: { answered: true, stage: "won" },
+      today: TODAY,
+      retryActionLabel: "Try again",
+    });
+
+    expect(outcome.patch.stage).toBeUndefined();
+  });
+
   it("brings a deal under review back to follow-up when the client answers", () => {
     const outcome = plan([], true, { stage: STAGE_PENDING_REVIEW });
 

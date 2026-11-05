@@ -16,6 +16,7 @@ import {
   useGetList,
   useGetMany,
   useGetOne,
+  useLocaleState,
   useTranslate,
 } from "ra-core";
 import { useEffect, useState, type ReactNode } from "react";
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils";
 
 import { MobileContent } from "../layout/MobileContent";
 import MobileHeader from "../layout/MobileHeader";
+import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Company, Contact, Deal, DealActivity } from "../types";
 import {
   LostDialog,
@@ -128,6 +130,8 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
   const formatDate = useFormatDate();
   const salesById = useSalesById();
   const { save } = useDealUpdater();
+  const { currency } = useConfigurationContext();
+  const [locale = "en"] = useLocaleState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [dialog, setDialog] = useState<DialogName>();
 
@@ -223,7 +227,7 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
               </span>
             </InfoItem>
           ) : null}
-          {deal.quote_url || deal.quote_number ? (
+          {deal.quote_url || deal.quote_number || deal.quote_amount != null ? (
             <InfoItem label={translate("crm.followup.actions.quote")}>
               {deal.quote_url ? (
                 <a
@@ -238,6 +242,12 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
               ) : (
                 deal.quote_number
               )}
+              {deal.quote_amount != null
+                ? ` · ${deal.quote_amount.toLocaleString(locale, {
+                    style: "currency",
+                    currency,
+                  })}`
+                : null}
               {deal.quote_sent_date
                 ? ` · ${formatDate(deal.quote_sent_date)}`
                 : null}

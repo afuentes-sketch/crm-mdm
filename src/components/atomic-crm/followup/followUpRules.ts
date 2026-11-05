@@ -120,6 +120,8 @@ export interface AttemptInput {
   /** Next action chosen by the user (only used when the client answered). */
   nextAction?: string | null;
   nextActionDate?: string | null;
+  /** New status chosen by the user (only used when the client answered). */
+  stage?: string | null;
 }
 
 export interface AttemptOutcome {
@@ -153,12 +155,18 @@ export const planAfterAttempt = ({
   if (attempt.answered) {
     const isOnHold =
       deal.stage === STAGE_PENDING_REVIEW || deal.stage === STAGE_PAUSED;
+    // The status can change in the same step. Statuses with their own rules
+    // (review, pause, won, lost) keep their dedicated dialogs.
+    const chosenStage =
+      attempt.stage && !isGuardedStage(attempt.stage) ? attempt.stage : null;
+    // An answer brings a deal on hold back to the follow-up
+    const stage = chosenStage ?? (isOnHold ? STAGE_FOLLOW_UP : null);
     return {
       patch: {
         next_action: attempt.nextAction?.trim() || null,
         next_action_date: attempt.nextActionDate || null,
-        // An answer brings a deal on hold back to the follow-up
-        ...(isOnHold ? { stage: STAGE_FOLLOW_UP, resume_date: null } : {}),
+        ...(stage && stage !== deal.stage ? { stage } : {}),
+        ...(isOnHold ? { resume_date: null } : {}),
       },
       unansweredCount: 0,
       sentToReview: false,

@@ -126,4 +126,41 @@ describe("FollowUpShow", () => {
       .toBe("Chose a local supplier");
     expect((await getDeal(dataProvider)).stage).toBe("lost");
   });
+
+  it("changes the status in the same step as an answered contact", async () => {
+    const { screen, dataProvider } = await renderFollowUp("/seguimiento/1", {
+      stage: "pending-quote",
+    });
+
+    await screen.getByRole("button", { name: "Register contact" }).click();
+    await screen.getByRole("radio", { name: "Call" }).click();
+    await screen.getByRole("radio", { name: "Yes, they answered" }).click();
+    await screen.getByLabelText("Stage").click();
+    await screen.getByRole("option", { name: "Cotización enviada" }).click();
+    await screen
+      .getByLabelText(/Next action/)
+      .fill("Call to discuss the quote");
+    await screen.getByRole("button", { name: "Save" }).click();
+
+    await expect
+      .poll(async () => (await getDeal(dataProvider)).stage)
+      .toBe("quote-sent");
+    const [activity] = await getHistory(dataProvider);
+    expect(activity.answered).toBe(true);
+  });
+
+  it("uses the quote amount as the deal amount", async () => {
+    const { screen, dataProvider } = await renderFollowUp("/seguimiento/1", {
+      amount: 1000,
+    });
+
+    await screen.getByRole("button", { name: "Quote", exact: true }).click();
+    await screen.getByLabelText("Quote amount").fill("85000");
+    await screen.getByRole("button", { name: "Save" }).click();
+
+    await expect
+      .poll(async () => (await getDeal(dataProvider)).amount)
+      .toBe(85000);
+    expect((await getDeal(dataProvider)).quote_amount).toBe(85000);
+  });
 });

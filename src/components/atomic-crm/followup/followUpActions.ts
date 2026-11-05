@@ -16,6 +16,8 @@ export interface ContactAttemptInput {
   notes?: string | null;
   nextAction?: string | null;
   nextActionDate?: string | null;
+  /** New status, applied only when the client answered. */
+  stage?: string | null;
 }
 
 /**

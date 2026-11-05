@@ -5,8 +5,17 @@ import {
   useTranslate,
 } from "ra-core";
 import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { formatISODateString } from "../deals/dealUtils";
+import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal, DealActivityChannel } from "../types";
 import {
   ChoiceButtons,
@@ -20,7 +29,7 @@ import {
   recordContactAttempt,
   wonPatch,
 } from "./followUpActions";
-import { addDays } from "./followUpRules";
+import { addDays, isGuardedStage, STAGE_FOLLOW_UP } from "./followUpRules";
 import { useDealUpdater, useToday } from "./useFollowUpData";
 
 export interface DealDialogProps {
@@ -47,6 +56,11 @@ export const RegisterContactDialog = ({
   const [notes, setNotes] = useState("");
   const [nextAction, setNextAction] = useState("");
   const [nextActionDate, setNextActionDate] = useState(addDays(today, 7));
+  // A deal on hold that answers goes back to follow-up by default
+  const defaultStage = isGuardedStage(deal.stage)
+    ? STAGE_FOLLOW_UP
+    : deal.stage;
+  const [stage, setStage] = useState(defaultStage);
 
   useEffect(() => {
     if (!open) return;
@@ -55,7 +69,8 @@ export const RegisterContactDialog = ({
     setNotes("");
     setNextAction("");
     setNextActionDate(addDays(today, 7));
-  }, [open, today]);
+    setStage(defaultStage);
+  }, [open, today, defaultStage]);
 
   const onSave = async () => {
     if (!channel || !answered) return false;
@@ -69,6 +84,7 @@ export const RegisterContactDialog = ({
           notes,
           nextAction,
           nextActionDate,
+          stage,
         },
         salesId: identity?.id,
         today,
@@ -133,6 +149,7 @@ export const RegisterContactDialog = ({
       />
       {answered === "yes" ? (
         <>
+          <StageSelect value={stage} onChange={setStage} />
           <TextField
             id="followup-next-action"
             label={translate("crm.followup.fields.next_action")}
@@ -151,6 +168,48 @@ export const RegisterContactDialog = ({
         </>
       ) : null}
     </FollowUpDialog>
+  );
+};
+
+/** Statuses the salesperson can pick; closing ones have their own buttons. */
+const StageSelect = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) => {
+  const translate = useTranslate();
+  const { dealStages } = useConfigurationContext();
+  const items = dealStages
+    .filter((stage) => !isGuardedStage(stage.value))
+    .map((stage) => ({ value: stage.value, label: stage.label }));
+  return (
+    <div className="flex flex-col gap-2">
+      <Label htmlFor="followup-stage" className="text-base">
+        {translate("resources.deals.fields.stage")}
+      </Label>
+      <Select
+        value={value}
+        onValueChange={(newValue) => newValue && onChange(newValue)}
+        items={items}
+      >
+        <SelectTrigger id="followup-stage" className="w-full h-12 text-base">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {items.map((item) => (
+            <SelectItem
+              key={item.value}
+              value={item.value}
+              className="text-base"
+            >
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 
@@ -364,6 +423,8 @@ export const QuoteDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
             quote_url: quoteUrl.trim() || null,
             quote_number: quoteNumber.trim() || null,
             quote_amount: quoteAmount === "" ? null : Math.round(+quoteAmount),
+            // One capture: the current quote is the deal's amount
+            ...(quoteAmount === "" ? {} : { amount: Math.round(+quoteAmount) }),
             quote_sent_date: quoteSentDate || null,
           },
           translate("crm.followup.messages.saved"),
