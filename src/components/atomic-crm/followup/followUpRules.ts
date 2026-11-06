@@ -12,14 +12,15 @@ export const STAGE_TO_QUOTE = "to-quote";
 export const STAGE_TO_AUTHORIZE = "to-authorize";
 export const STAGE_READY_TO_SEND = "ready-to-send";
 export const STAGE_SENT = "sent";
+export const STAGE_IN_FOLLOW_UP = "follow-up";
 export const STAGE_PAUSED = "paused";
 export const STAGE_WON = "won";
 export const STAGE_LOST = "lost";
 
 /** First status of a new deal. */
 export const STAGE_NEW = STAGE_TO_QUOTE;
-/** Status a deal goes back to when the follow-up resumes. */
-export const STAGE_FOLLOW_UP = STAGE_SENT;
+/** Status of a deal whose client has been contacted after the quote. */
+export const STAGE_FOLLOW_UP = STAGE_IN_FOLLOW_UP;
 
 /** Statuses that ask for details (resume date, purchase order, reason). */
 export const GUARDED_STAGES = [STAGE_PAUSED, STAGE_WON, STAGE_LOST] as const;
@@ -143,6 +144,8 @@ export interface AttemptOutcome {
 
 /**
  * What happens to a deal once a contact attempt is recorded.
+ * - A sent quote moves to "in follow-up" with its first contact, answered or
+ *   not: something was done since sending it.
  * - Client answered: the counter resets, the user's next action and status
  *   are kept, and a paused deal goes back to follow-up.
  * - No answer: the next attempt is planned one week later.
@@ -166,7 +169,9 @@ export const planAfterAttempt = ({
     // their dedicated dialogs.
     const chosenStage =
       attempt.stage && !isGuardedStage(attempt.stage) ? attempt.stage : null;
-    const stage = chosenStage ?? (isPaused ? STAGE_FOLLOW_UP : null);
+    const stage =
+      chosenStage ??
+      (isPaused || deal.stage === STAGE_SENT ? STAGE_FOLLOW_UP : null);
     return {
       patch: {
         next_action: attempt.nextAction?.trim() || null,
@@ -182,6 +187,7 @@ export const planAfterAttempt = ({
     patch: {
       next_action: retryActionLabel,
       next_action_date: addDays(today, RETRY_DELAY_DAYS),
+      ...(deal.stage === STAGE_SENT ? { stage: STAGE_FOLLOW_UP } : {}),
     },
     unansweredCount:
       countConsecutiveUnanswered(previousActivities, deal.attempts_reset_at) +
@@ -203,7 +209,7 @@ export const getFollowUpGroup = (
   }
   const step = STEP_GROUPS[deal.stage];
   if (step) return step;
-  // Sent to the client: grouped by the date of the next follow-up
+  // Sent or in follow-up: grouped by the date of the next contact
   if (!deal.next_action_date) return "no_action";
   if (deal.next_action_date < today) return "overdue";
   if (deal.next_action_date <= endOfWeek(today)) return "this_week";

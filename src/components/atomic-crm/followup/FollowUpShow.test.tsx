@@ -142,9 +142,7 @@ describe("FollowUpShow", () => {
     await screen.getByRole("radio", { name: "Call" }).click();
     await screen.getByRole("radio", { name: "Yes, they answered" }).click();
     await screen.getByLabelText("Stage").click();
-    await screen
-      .getByRole("option", { name: "Enviada · en seguimiento" })
-      .click();
+    await screen.getByRole("option", { name: "Enviada", exact: true }).click();
     await screen
       .getByLabelText(/Next action/)
       .fill("Call to discuss the quote");

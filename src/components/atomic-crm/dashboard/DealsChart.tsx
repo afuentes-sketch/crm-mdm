@@ -23,6 +23,7 @@ const multiplier = {
   "to-authorize": 0.3,
   "ready-to-send": 0.4,
   sent: 0.5,
+  "follow-up": 0.6,
   paused: 0.2,
 };
 

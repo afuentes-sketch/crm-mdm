@@ -485,7 +485,7 @@ BEGIN
         CASE
           WHEN d.stage = 'won' THEN 4
           WHEN d.archived_at IS NOT NULL THEN 1
-          WHEN d.stage = 'sent' THEN 3
+          WHEN d.stage IN ('sent', 'follow-up') THEN 3
           WHEN d.stage IN ('to-quote', 'to-authorize', 'ready-to-send') THEN 2
           ELSE 1
         END), 1)

@@ -199,7 +199,7 @@ describe("DataImportButton", () => {
         name: "New website",
         company: "Acme",
         categories: "Diseño web; Redacción",
-        stage: "Enviada · en seguimiento",
+        stage: "Enviada",
         amount: "12000",
         expected_closing_date: "2026-09-30",
       },
@@ -235,7 +235,7 @@ describe("DataImportButton", () => {
       [
         { name: "First", stage: "Por cotizar" },
         { name: "Second", stage: "Por cotizar" },
-        { name: "Other column", stage: "Enviada · en seguimiento" },
+        { name: "Other column", stage: "Enviada" },
       ],
       {
         deals: [
@@ -282,7 +282,7 @@ describe("DataImportButton", () => {
       .upload(
         csvFile("deals.csv", [
           "name,company,stage,amount,expected_closing_date",
-          "New website,Acme,Enviada · en seguimiento,4500.50,2026-09-30",
+          "New website,Acme,Enviada,4500.50,2026-09-30",
         ]),
       );
     await screen.getByRole("button", { name: "Start import" }).click();

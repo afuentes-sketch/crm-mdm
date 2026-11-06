@@ -10,6 +10,7 @@ import {
   getFollowUpGroup,
   getReminders,
   planAfterAttempt,
+  STAGE_IN_FOLLOW_UP,
   STAGE_PAUSED,
   STAGE_READY_TO_SEND,
   STAGE_SENT,
@@ -38,7 +39,7 @@ const deal = (overrides: Partial<Deal> = {}): Deal => ({
   company_id: 1,
   contact_ids: [],
   categories: [],
-  stage: STAGE_SENT,
+  stage: STAGE_IN_FOLLOW_UP,
   description: "",
   amount: 0,
   created_at: "2026-10-01T00:00:00.000Z",
@@ -142,6 +143,15 @@ describe("planAfterAttempt", () => {
     });
   });
 
+  it("moves a sent quote to follow-up with its first contact, even unanswered", () => {
+    expect(plan([], false, { stage: STAGE_SENT }).patch.stage).toBe(
+      STAGE_IN_FOLLOW_UP,
+    );
+    expect(plan([], true, { stage: STAGE_SENT }).patch.stage).toBe(
+      STAGE_IN_FOLLOW_UP,
+    );
+  });
+
   it("applies the status chosen while registering an answered contact", () => {
     const outcome = plan([], true, { stage: STAGE_TO_QUOTE }, STAGE_SENT);
 
@@ -157,7 +167,7 @@ describe("planAfterAttempt", () => {
   it("brings a paused deal back to follow-up when the client answers", () => {
     const outcome = plan([], true, { stage: STAGE_PAUSED });
 
-    expect(outcome.patch.stage).toBe(STAGE_SENT);
+    expect(outcome.patch.stage).toBe(STAGE_IN_FOLLOW_UP);
     expect(outcome.patch.resume_date).toBeNull();
   });
 });

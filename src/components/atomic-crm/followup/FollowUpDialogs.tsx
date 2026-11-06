@@ -38,6 +38,7 @@ import {
   addDays,
   isGuardedStage,
   STAGE_FOLLOW_UP,
+  STAGE_SENT,
   STAGE_TO_AUTHORIZE,
   STAGE_TO_QUOTE,
 } from "./followUpRules";
@@ -68,9 +69,11 @@ export const RegisterContactDialog = ({
   const [nextAction, setNextAction] = useState("");
   const [nextActionDate, setNextActionDate] = useState(addDays(today, 7));
   // A deal on hold that answers goes back to follow-up by default
-  const defaultStage = isGuardedStage(deal.stage)
-    ? STAGE_FOLLOW_UP
-    : deal.stage;
+  // A sent quote, a paused deal or one on hold moves on to follow-up
+  const defaultStage =
+    isGuardedStage(deal.stage) || deal.stage === STAGE_SENT
+      ? STAGE_FOLLOW_UP
+      : deal.stage;
   const [stage, setStage] = useState(defaultStage);
 
   useEffect(() => {
