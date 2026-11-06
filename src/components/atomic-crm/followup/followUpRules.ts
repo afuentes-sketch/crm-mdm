@@ -5,33 +5,34 @@ import type { Deal, DealActivity } from "../types";
 /** Route of the follow-up list; a deal opens at `${FOLLOW_UP_PATH}/:id`. */
 export const FOLLOW_UP_PATH = "/seguimiento";
 
-// Stage values with a follow-up meaning. They are stored in the database, so
-// they must match the configured deal stages (see defaultConfiguration.ts).
-export const STAGE_NEW = "new";
-export const STAGE_FOLLOW_UP = "negotiation";
-export const STAGE_PENDING_REVIEW = "pending-review";
+// Sales statuses, in the order a deal goes through them. The values are stored
+// in the database and must match the configured deal stages
+// (see defaultConfiguration.ts).
+export const STAGE_TO_QUOTE = "to-quote";
+export const STAGE_TO_AUTHORIZE = "to-authorize";
+export const STAGE_READY_TO_SEND = "ready-to-send";
+export const STAGE_SENT = "sent";
 export const STAGE_PAUSED = "paused";
 export const STAGE_WON = "won";
 export const STAGE_LOST = "lost";
 
-/** Stages that can only be reached through a dedicated dialog. */
-export const GUARDED_STAGES = [
-  STAGE_PENDING_REVIEW,
-  STAGE_PAUSED,
-  STAGE_WON,
-  STAGE_LOST,
-] as const;
+/** First status of a new deal. */
+export const STAGE_NEW = STAGE_TO_QUOTE;
+/** Status a deal goes back to when the follow-up resumes. */
+export const STAGE_FOLLOW_UP = STAGE_SENT;
+
+/** Statuses that ask for details (resume date, purchase order, reason). */
+export const GUARDED_STAGES = [STAGE_PAUSED, STAGE_WON, STAGE_LOST] as const;
 
 export const CLOSED_STAGES = [STAGE_WON, STAGE_LOST] as const;
 
 /** Days to wait before the next attempt when the client did not answer. */
 export const RETRY_DELAY_DAYS = 7;
 
-/** Unanswered attempts in a row that send the deal to review. */
-export const MAX_UNANSWERED_ATTEMPTS = 3;
-
 export type FollowUpGroup =
-  | "review"
+  | "to_quote"
+  | "to_authorize"
+  | "ready_to_send"
   | "resume"
   | "overdue"
   | "this_week"
@@ -43,14 +44,23 @@ export type FollowUpGroup =
 
 /** Display order of the groups in the follow-up list. */
 export const ACTIVE_GROUPS: FollowUpGroup[] = [
-  "review",
   "resume",
   "overdue",
   "this_week",
+  "to_authorize",
+  "ready_to_send",
+  "to_quote",
   "this_month",
   "later",
   "no_action",
 ];
+
+/** Internal steps before the quote reaches the client. */
+const STEP_GROUPS: Partial<Record<string, FollowUpGroup>> = {
+  [STAGE_TO_QUOTE]: "to_quote",
+  [STAGE_TO_AUTHORIZE]: "to_authorize",
+  [STAGE_READY_TO_SEND]: "ready_to_send",
+};
 
 // Dates are handled as "YYYY-MM-DD" strings in the user's local time, which is
 // how the date inputs and the `date` columns store them.
@@ -129,15 +139,13 @@ export interface AttemptOutcome {
   patch: Partial<Deal>;
   /** Unanswered attempts in a row, this one included. */
   unansweredCount: number;
-  sentToReview: boolean;
 }
 
 /**
  * What happens to a deal once a contact attempt is recorded.
- * - Client answered: the counter resets and the user's next action is kept.
+ * - Client answered: the counter resets, the user's next action and status
+ *   are kept, and a paused deal goes back to follow-up.
  * - No answer: the next attempt is planned one week later.
- * - Third unanswered attempt in a row: the deal goes to review and its
- *   reminders stop until Andrés decides what to do.
  */
 export const planAfterAttempt = ({
   deal,
@@ -153,37 +161,20 @@ export const planAfterAttempt = ({
   retryActionLabel: string;
 }): AttemptOutcome => {
   if (attempt.answered) {
-    const isOnHold =
-      deal.stage === STAGE_PENDING_REVIEW || deal.stage === STAGE_PAUSED;
-    // The status can change in the same step. Statuses with their own rules
-    // (review, pause, won, lost) keep their dedicated dialogs.
+    const isPaused = deal.stage === STAGE_PAUSED;
+    // The status can change in the same step. Pause, won and lost keep
+    // their dedicated dialogs.
     const chosenStage =
       attempt.stage && !isGuardedStage(attempt.stage) ? attempt.stage : null;
-    // An answer brings a deal on hold back to the follow-up
-    const stage = chosenStage ?? (isOnHold ? STAGE_FOLLOW_UP : null);
+    const stage = chosenStage ?? (isPaused ? STAGE_FOLLOW_UP : null);
     return {
       patch: {
         next_action: attempt.nextAction?.trim() || null,
         next_action_date: attempt.nextActionDate || null,
         ...(stage && stage !== deal.stage ? { stage } : {}),
-        ...(isOnHold ? { resume_date: null } : {}),
+        ...(isPaused ? { resume_date: null } : {}),
       },
       unansweredCount: 0,
-      sentToReview: false,
-    };
-  }
-
-  const unansweredCount =
-    countConsecutiveUnanswered(previousActivities, deal.attempts_reset_at) + 1;
-  if (unansweredCount >= MAX_UNANSWERED_ATTEMPTS) {
-    return {
-      patch: {
-        stage: STAGE_PENDING_REVIEW,
-        next_action: null,
-        next_action_date: null,
-      },
-      unansweredCount,
-      sentToReview: true,
     };
   }
 
@@ -192,8 +183,9 @@ export const planAfterAttempt = ({
       next_action: retryActionLabel,
       next_action_date: addDays(today, RETRY_DELAY_DAYS),
     },
-    unansweredCount,
-    sentToReview: false,
+    unansweredCount:
+      countConsecutiveUnanswered(previousActivities, deal.attempts_reset_at) +
+      1,
   };
 };
 
@@ -209,7 +201,9 @@ export const getFollowUpGroup = (
   if (deal.stage === STAGE_PAUSED) {
     return deal.resume_date && deal.resume_date <= today ? "resume" : "paused";
   }
-  if (deal.stage === STAGE_PENDING_REVIEW) return "review";
+  const step = STEP_GROUPS[deal.stage];
+  if (step) return step;
+  // Sent to the client: grouped by the date of the next follow-up
   if (!deal.next_action_date) return "no_action";
   if (deal.next_action_date < today) return "overdue";
   if (deal.next_action_date <= endOfWeek(today)) return "this_week";
@@ -219,13 +213,14 @@ export const getFollowUpGroup = (
 
 export interface Reminder {
   deal: Deal;
-  kind: "due" | "overdue" | "review" | "resume";
+  kind: "due" | "overdue" | "resume" | "authorize" | "send";
 }
 
 /**
- * Reminders shown in the bell. The person in charge is reminded of the deals
- * whose next action is due today or earlier (unless reminders are muted) and of
- * paused deals to resume. Administrators also see the deals waiting for review.
+ * Reminders shown in the bell.
+ * - Administrators: the quotes waiting for their authorization.
+ * - The person in charge (unless muted): quotes ready to send, follow-ups due
+ *   today or overdue, and paused deals whose resume date has come.
  */
 export const getReminders = ({
   deals,
@@ -241,12 +236,14 @@ export const getReminders = ({
   const reminders: Reminder[] = [];
   for (const deal of deals) {
     const group = getFollowUpGroup(deal, today);
-    if (group === "review") {
-      if (isAdmin) reminders.push({ deal, kind: "review" });
+    if (group === "to_authorize") {
+      if (isAdmin) reminders.push({ deal, kind: "authorize" });
       continue;
     }
     if (deal.sales_id !== salesId || deal.reminders_muted) continue;
-    if (group === "resume") {
+    if (group === "ready_to_send") {
+      reminders.push({ deal, kind: "send" });
+    } else if (group === "resume") {
       reminders.push({ deal, kind: "resume" });
     } else if (group === "overdue") {
       reminders.push({ deal, kind: "overdue" });

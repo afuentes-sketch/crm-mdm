@@ -2,10 +2,14 @@ import type { DataProvider, Identifier } from "ra-core";
 
 import type { Deal, DealActivity, DealActivityChannel } from "../types";
 import {
+  addDays,
   planAfterAttempt,
+  RETRY_DELAY_DAYS,
   STAGE_FOLLOW_UP,
   STAGE_LOST,
   STAGE_PAUSED,
+  STAGE_READY_TO_SEND,
+  STAGE_SENT,
   STAGE_WON,
   type AttemptOutcome,
 } from "./followUpRules";
@@ -100,17 +104,28 @@ export const resumePatch = ({
   attempts_reset_at: new Date().toISOString(),
 });
 
-/** Andrés decides to keep trying after a review: the counter starts over. */
-export const keepTryingPatch = ({
+/** Andrés approves the price: the quote can go to the client. */
+export const authorizePatch = (): Partial<Deal> => ({
+  stage: STAGE_READY_TO_SEND,
+});
+
+/**
+ * The quote reached the client: the follow-up starts, with a first check-in
+ * one week later.
+ */
+export const markSentPatch = ({
+  deal,
   today,
   actionLabel,
 }: {
+  deal: Pick<Deal, "quote_sent_date">;
   today: string;
   actionLabel: string;
 }): Partial<Deal> => ({
-  stage: STAGE_FOLLOW_UP,
+  stage: STAGE_SENT,
+  quote_sent_date: deal.quote_sent_date ?? today,
   next_action: actionLabel,
-  next_action_date: today,
+  next_action_date: addDays(today, RETRY_DELAY_DAYS),
   attempts_reset_at: new Date().toISOString(),
 });
 

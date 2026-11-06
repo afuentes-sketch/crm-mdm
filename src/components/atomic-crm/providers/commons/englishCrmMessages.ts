@@ -186,8 +186,8 @@ export const englishCrmMessages = {
     deals: {
       name: "Deal |||| Deals",
       fields: {
-        name: "Name",
-        description: "Description",
+        name: "Project name",
+        description: "Customer need",
         company_id: "Company",
         contact_ids: "Contacts",
         categories: "Categories",
@@ -578,7 +578,9 @@ export const englishCrmMessages = {
       title: "Follow-up",
       subtitle: "All active deals, most urgent first",
       groups: {
-        review: "Waiting for review",
+        to_quote: "To quote",
+        to_authorize: "To authorize",
+        ready_to_send: "Ready to send",
         resume: "Paused: time to resume",
         overdue: "Overdue",
         this_week: "This week",
@@ -640,7 +642,9 @@ export const englishCrmMessages = {
         resume: "Resume now",
         won: "Won (purchase order)",
         lost: "Mark as lost",
-        keep_trying: "Keep trying",
+        register_price: "Register the price",
+        authorize: "Authorize",
+        mark_sent: "Mark as sent to the client",
         mute: "Mute reminders",
         unmute: "Turn reminders back on",
         quote: "Quote",
@@ -651,13 +655,13 @@ export const englishCrmMessages = {
         first_contact: "First contact",
         retry: "Try again (no answer last time)",
         resume: "Resume contact",
-        keep_trying: "New attempt after review",
+        ask_status: "Ask the client how it is going",
       },
       messages: {
         registered: "Contact registered",
         retry_planned: "No answer: next attempt planned for %{date}",
-        sent_to_review:
-          "3 attempts without answer: the deal is waiting for review",
+        authorized: "Quote authorized: ready to send",
+        sent: "Quote sent: follow-up starts, first check-in in one week",
         paused: "Deal paused",
         resumed: "Deal back in follow-up",
         won: "Congratulations! Deal won",
@@ -667,10 +671,13 @@ export const englishCrmMessages = {
         unmuted: "Reminders turned back on",
         error: "Could not save. Please try again.",
       },
-      review: {
-        banner:
-          "3 attempts without answer. An administrator decides: keep trying, pause or mark as lost.",
-        waiting: "Waiting for the administrator's decision.",
+      steps: {
+        to_quote:
+          "Next step: once you have the price from the person who quotes, register it here.",
+        to_authorize: "Next step: check the price and authorize the quote.",
+        waiting_authorization: "Waiting for the administrator's authorization.",
+        ready_to_send:
+          "Next step: send the quote to the client and mark it as sent.",
       },
       dialogs: {
         register_title: "Register a contact",
@@ -697,7 +704,8 @@ export const englishCrmMessages = {
         empty: "Nothing pending. Well done!",
         due: "Today",
         overdue: "Overdue",
-        review: "To review",
+        authorize: "To authorize",
+        send: "Ready to send",
         resume: "To resume",
         see_all: "See all follow-up",
       },
@@ -710,7 +718,7 @@ export const englishCrmMessages = {
         step_3:
           'Every time you call, send a WhatsApp or an email, or visit, press "Register contact" and say whether they answered.',
         step_4:
-          "No answer? The system reminds you again in one week. After 3 attempts without answer, the deal goes to review.",
+          "No answer? The system reminds you again in one week, as many times as needed.",
         step_5: "They answered? Write what comes next and when.",
         step_6: "The bell at the top shows what is due today.",
         step_7:

@@ -19,7 +19,8 @@ import { useFollowUpDeals, useIsAdmin, useToday } from "./useFollowUpData";
 const KIND_STYLES: Record<Reminder["kind"], string> = {
   overdue: "bg-red-500",
   due: "bg-amber-500",
-  review: "bg-purple-500",
+  authorize: "bg-purple-500",
+  send: "bg-green-500",
   resume: "bg-blue-500",
 };
 

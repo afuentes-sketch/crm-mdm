@@ -28,18 +28,16 @@ export const defaultCompanySectors = [
   { value: "utilities", label: "Servicios públicos" },
 ];
 
-// Sales statuses agreed with MDM. "pending-review", "paused", "won" and "lost"
-// carry follow-up rules (see followup/followUpRules.ts): keep their values.
+// Sales statuses agreed with MDM, in the order a deal goes through them.
+// "paused", "won" and "lost" carry follow-up rules and the step statuses drive
+// the guided follow-up (see followup/followUpRules.ts): keep their values.
 export const defaultDealStages = [
-  { value: "new", label: "Nuevo" },
-  { value: "gathering-info", label: "Recopilando información" },
-  { value: "pending-quote", label: "Pendiente de cotización por Andrés" },
-  { value: "quote-ready", label: "Cotización lista para enviar" },
-  { value: "quote-sent", label: "Cotización enviada" },
-  { value: "negotiation", label: "En seguimiento / negociación" },
-  { value: "pending-review", label: "Pendiente de revisión con Andrés" },
+  { value: "to-quote", label: "Por cotizar" },
+  { value: "to-authorize", label: "Por autorizar" },
+  { value: "ready-to-send", label: "Lista para enviar" },
+  { value: "sent", label: "Enviada · en seguimiento" },
   { value: "paused", label: "En pausa" },
-  { value: "won", label: "Ganada: orden de compra recibida" },
+  { value: "won", label: "Ganada (OC)" },
   { value: "lost", label: "Perdida" },
 ];
 

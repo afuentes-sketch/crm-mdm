@@ -34,7 +34,13 @@ import {
   recordContactAttempt,
   wonPatch,
 } from "./followUpActions";
-import { addDays, isGuardedStage, STAGE_FOLLOW_UP } from "./followUpRules";
+import {
+  addDays,
+  isGuardedStage,
+  STAGE_FOLLOW_UP,
+  STAGE_TO_AUTHORIZE,
+  STAGE_TO_QUOTE,
+} from "./followUpRules";
 import { useDealUpdater, useToday } from "./useFollowUpData";
 
 export interface DealDialogProps {
@@ -96,11 +102,7 @@ export const RegisterContactDialog = ({
         retryActionLabel: translate("crm.followup.defaults.retry"),
       });
       await refresh();
-      if (outcome.sentToReview) {
-        notify(translate("crm.followup.messages.sent_to_review"), {
-          type: "warning",
-        });
-      } else if (answered === "no" && outcome.patch.next_action_date) {
+      if (answered === "no" && outcome.patch.next_action_date) {
         notify(
           translate("crm.followup.messages.retry_planned", {
             date: formatISODateString(outcome.patch.next_action_date, locale),
@@ -434,6 +436,10 @@ export const QuoteDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
             ...(quoteAmount === "" ? {} : { amount: Math.round(+quoteAmount) }),
             currency,
             quote_sent_date: quoteSentDate || null,
+            // Registering the price of a deal to quote sends it to authorization
+            ...(deal.stage === STAGE_TO_QUOTE && quoteAmount !== ""
+              ? { stage: STAGE_TO_AUTHORIZE }
+              : {}),
           },
           translate("crm.followup.messages.saved"),
         )

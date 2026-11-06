@@ -15,23 +15,25 @@ export const getDealCurrency = (deal: Pick<Deal, "currency">): DealCurrency =>
   deal.currency === "USD" ? "USD" : DEFAULT_DEAL_CURRENCY;
 
 /**
- * Formats an amount with its currency code, so pesos and dollars can never be
- * mistaken for each other ("MXN 12,500" vs "USD 12,500").
+ * Formats an amount as a price followed by its currency, so pesos and dollars
+ * can never be mistaken for each other ("$12,500 MXN" vs "$12,500 USD").
  */
 export const formatDealAmount = (
   amount: number,
   currency: string,
   locale: string,
   { compact = false }: { compact?: boolean } = {},
-): string =>
-  amount.toLocaleString(locale, {
+): string => {
+  const price = amount.toLocaleString(locale, {
     style: "currency",
     currency,
-    currencyDisplay: "code",
+    currencyDisplay: "narrowSymbol",
     ...(compact
       ? { notation: "compact", maximumFractionDigits: 1 }
       : { maximumFractionDigits: 0 }),
   });
+  return `${price} ${currency}`;
+};
 
 /**
  * Totals per currency: amounts in pesos and dollars are never added together.

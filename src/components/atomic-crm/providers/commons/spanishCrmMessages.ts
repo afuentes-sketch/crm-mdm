@@ -189,8 +189,8 @@ export const spanishCrmMessages = {
     deals: {
       name: "Oportunidad |||| Oportunidades",
       fields: {
-        name: "Nombre",
-        description: "Descripción",
+        name: "Nombre del proyecto",
+        description: "Necesidad del cliente",
         company_id: "Empresa",
         contact_ids: "Contactos",
         categories: "Categorías",
@@ -583,7 +583,9 @@ export const spanishCrmMessages = {
       title: "Seguimiento",
       subtitle: "Todas las oportunidades activas, lo más urgente primero",
       groups: {
-        review: "Pendientes de revisión",
+        to_quote: "Por cotizar",
+        to_authorize: "Por autorizar",
+        ready_to_send: "Listas para enviar",
         resume: "En pausa: ya toca retomar",
         overdue: "Vencidos",
         this_week: "Esta semana",
@@ -645,7 +647,9 @@ export const spanishCrmMessages = {
         resume: "Retomar ahora",
         won: "Ganada (orden de compra)",
         lost: "Marcar como perdida",
-        keep_trying: "Seguir intentando",
+        register_price: "Registrar el precio",
+        authorize: "Autorizar",
+        mark_sent: "Marcar como enviada al cliente",
         mute: "Silenciar recordatorios",
         unmute: "Volver a activar recordatorios",
         quote: "Cotización",
@@ -656,14 +660,12 @@ export const spanishCrmMessages = {
         first_contact: "Primer contacto",
         retry: "Volver a intentar (no contestó la vez anterior)",
         resume: "Retomar contacto",
-        keep_trying: "Nuevo intento después de revisión",
+        ask_status: "Preguntar al cliente cómo va",
       },
       messages: {
         registered: "Contacto registrado",
         retry_planned:
           "No contestó: el siguiente intento quedó para el %{date}",
-        sent_to_review:
-          "3 intentos sin respuesta: la oportunidad pasó a revisión con Andrés",
         paused: "Oportunidad en pausa",
         resumed: "La oportunidad volvió a seguimiento",
         won: "¡Felicidades! Oportunidad ganada",
@@ -672,11 +674,17 @@ export const spanishCrmMessages = {
         muted: "Recordatorios silenciados para esta oportunidad",
         unmuted: "Recordatorios activados de nuevo",
         error: "No se pudo guardar. Inténtalo de nuevo.",
+        authorized: "Cotización autorizada: lista para enviar",
+        sent: "Cotización enviada: empieza el seguimiento, primer contacto en una semana",
       },
-      review: {
-        banner:
-          "3 intentos sin respuesta. Andrés decide: seguir intentando, pausar o marcar como perdida.",
-        waiting: "Esperando la decisión de Andrés.",
+      steps: {
+        to_quote:
+          "Siguiente paso: cuando tengas el precio de quien cotiza, regístralo aquí.",
+        to_authorize:
+          "Siguiente paso: revisa el precio y autoriza la cotización.",
+        waiting_authorization: "Esperando la autorización de Andrés.",
+        ready_to_send:
+          "Siguiente paso: envía la cotización al cliente y márcala como enviada.",
       },
       dialogs: {
         register_title: "Registrar un contacto",
@@ -704,7 +712,8 @@ export const spanishCrmMessages = {
         empty: "No hay pendientes. ¡Bien hecho!",
         due: "Hoy",
         overdue: "Vencido",
-        review: "Por revisar",
+        authorize: "Por autorizar",
+        send: "Lista para enviar",
         resume: "Por retomar",
         see_all: "Ver todo el seguimiento",
       },
@@ -717,7 +726,7 @@ export const spanishCrmMessages = {
         step_3:
           'Cada vez que llames, mandes WhatsApp o correo, o visites, pulsa "Registrar contacto" y marca si contestó o no.',
         step_4:
-          "¿No contestó? El sistema te lo vuelve a recordar en una semana. A los 3 intentos sin respuesta, pasa a revisión con Andrés.",
+          "¿No contestó? El sistema te lo vuelve a recordar en una semana, las veces que haga falta.",
         step_5: "¿Sí contestó? Escribe qué sigue y para cuándo.",
         step_6: "La campanita de arriba te avisa lo que toca hoy.",
         step_7:

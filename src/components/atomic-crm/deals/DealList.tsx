@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-import type { InputProps } from "ra-core";
 import {
   useCanAccess,
   useGetIdentity,
@@ -7,7 +5,6 @@ import {
   useTranslate,
 } from "ra-core";
 import { matchPath, useLocation } from "react-router";
-import { AutocompleteArrayInput } from "@/components/admin/autocomplete-array-input";
 import { AutocompleteInput } from "@/components/admin/autocomplete-input";
 import { CreateButton } from "@/components/admin/create-button";
 import { ExportButton } from "@/components/admin/export-button";
@@ -17,7 +14,6 @@ import { FilterButton } from "@/components/admin/filter-form";
 import { SearchInput } from "@/components/admin/search-input";
 
 import { DataImportButton } from "../dataImport/DataImportButton";
-import { useConfigurationContext } from "../root/ConfigurationContext";
 import { TopToolbar } from "../layout/TopToolbar";
 import { AccountManagerInput } from "../sales/AccountManagerInput";
 import { DealArchivedList } from "./DealArchivedList";
@@ -30,7 +26,6 @@ import { OnlyMineInput } from "./OnlyMineInput";
 
 const DealList = () => {
   const { identity } = useGetIdentity();
-  const { dealCategories } = useConfigurationContext();
   const translate = useTranslate();
   const { canAccess: canAccessSalesList, isPending } = useCanAccess({
     resource: "sales",
@@ -47,26 +42,6 @@ const DealList = () => {
         placeholder={translate("resources.deals.fields.company_id")}
       />
     </ReferenceInput>,
-    <WrapperField
-      source="categories@ov"
-      label="resources.deals.fields.categories"
-    >
-      <AutocompleteArrayInput
-        source="categories@ov"
-        label={false}
-        placeholder={translate("resources.deals.fields.categories")}
-        // deals having any of the selected categories
-        parse={(values: string[]) =>
-          values?.length
-            ? `{${values.map((value) => `"${value}"`).join(",")}}`
-            : undefined
-        }
-        format={(value?: string) => value?.match(/[^{}",]+/g) ?? []}
-        choices={dealCategories}
-        optionText="label"
-        optionValue="value"
-      />
-    </WrapperField>,
     ...(isPending
       ? []
       : [
@@ -132,13 +107,5 @@ const DealActions = () => (
     <CreateButton label="resources.deals.action.new" />
   </TopToolbar>
 );
-
-/**
- *
- * Used so that label of filters can be inferred for the select display,
- * but not be displayed when showing the input.
- */
-const WrapperField = ({ children }: InputProps & { children: ReactNode }) =>
-  children;
 
 export default DealList;

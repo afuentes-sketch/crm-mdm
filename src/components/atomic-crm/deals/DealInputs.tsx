@@ -1,9 +1,7 @@
 import { required, useRecordContext, useTranslate } from "ra-core";
-import { AutocompleteArrayInput } from "@/components/admin/autocomplete-array-input";
 import { ReferenceArrayInput } from "@/components/admin/reference-array-input";
 import { ReferenceInput } from "@/components/admin/reference-input";
 import { TextInput } from "@/components/admin/text-input";
-import { NumberInput } from "@/components/admin/number-input";
 import { DateInput } from "@/components/admin/date-input";
 import { SelectInput } from "@/components/admin/select-input";
 import { Separator } from "@/components/ui/separator";
@@ -64,8 +62,19 @@ const DealLinkedToInputs = () => {
 
 const saleOptionText = (sale: Sale) => `${sale.first_name} ${sale.last_name}`;
 
+// Whole amounts shown as a price while typing: 1400 -> "$1,400"
+const formatPrice = (value: unknown): string =>
+  value == null || value === ""
+    ? ""
+    : `$${Number(value).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+
+const parsePrice = (value: string): number | null => {
+  const digits = value.replace(/\D/g, "");
+  return digits === "" ? null : Number(digits);
+};
+
 const DealMiscInputs = () => {
-  const { dealStages, dealCategories } = useConfigurationContext();
+  const { dealStages } = useConfigurationContext();
   const translate = useTranslate();
   const record = useRecordContext<Deal>();
   // Paused, review, won and lost need extra details (resume date, reason,
@@ -79,19 +88,14 @@ const DealMiscInputs = () => {
         {translate("resources.deals.field_categories.misc")}
       </h6>
 
-      <AutocompleteArrayInput
-        source="categories"
-        choices={dealCategories}
-        optionText="label"
-        optionValue="value"
-        helperText={false}
-      />
       <div className="grid grid-cols-[1fr_7rem] gap-2">
-        <NumberInput
+        <TextInput
           source="amount"
-          defaultValue={0}
           helperText={false}
           validate={required()}
+          format={formatPrice}
+          parse={parsePrice}
+          inputMode="numeric"
         />
         <SelectInput
           source="currency"

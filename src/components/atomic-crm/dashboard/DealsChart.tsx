@@ -19,13 +19,10 @@ import type { Deal } from "../types";
 
 // Probability of closing, to weigh the expected revenue of open deals
 const multiplier = {
-  new: 0.1,
-  "gathering-info": 0.2,
-  "pending-quote": 0.3,
-  "quote-ready": 0.4,
-  "quote-sent": 0.5,
-  negotiation: 0.7,
-  "pending-review": 0.2,
+  "to-quote": 0.2,
+  "to-authorize": 0.3,
+  "ready-to-send": 0.4,
+  sent: 0.5,
   paused: 0.2,
 };
 

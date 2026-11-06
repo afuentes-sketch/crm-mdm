@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  BadgeCheck,
   BellOff,
   BellRing,
   CalendarClock,
@@ -9,6 +10,7 @@ import {
   FileText,
   MessageCircle,
   Phone,
+  Send,
   Trophy,
 } from "lucide-react";
 import {
@@ -40,7 +42,7 @@ import {
 } from "./FollowUpDialogs";
 import { FollowUpHelpButton } from "./FollowUpHelpButton";
 import { GROUP_STYLES, StageBadge, useFormatDate } from "./FollowUpParts";
-import { keepTryingPatch, resumePatch } from "./followUpActions";
+import { authorizePatch, markSentPatch, resumePatch } from "./followUpActions";
 import {
   countConsecutiveUnanswered,
   FOLLOW_UP_PATH,
@@ -48,7 +50,9 @@ import {
   isClosed,
   STAGE_LOST,
   STAGE_PAUSED,
-  STAGE_PENDING_REVIEW,
+  STAGE_READY_TO_SEND,
+  STAGE_TO_AUTHORIZE,
+  STAGE_TO_QUOTE,
   STAGE_WON,
 } from "./followUpRules";
 import {
@@ -254,52 +258,29 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
 
       <StatusBanner deal={deal} />
 
-      {deal.stage === STAGE_PENDING_REVIEW ? (
-        <Card className="p-5 gap-3 border-purple-300 bg-purple-50 dark:bg-purple-950/30">
-          <p className="text-base font-medium">
-            {translate("crm.followup.review.banner")}
-          </p>
-          {isAdmin ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <BigButton
-                icon={<Phone />}
-                onClick={() =>
-                  save(
-                    deal,
-                    keepTryingPatch({
-                      today,
-                      actionLabel: translate(
-                        "crm.followup.defaults.keep_trying",
-                      ),
-                    }),
-                    translate("crm.followup.messages.resumed"),
-                  )
-                }
-              >
-                {translate("crm.followup.actions.keep_trying")}
-              </BigButton>
-              <BigButton
-                icon={<CirclePause />}
-                variant="outline"
-                onClick={() => setDialog("pause")}
-              >
-                {translate("crm.followup.actions.pause")}
-              </BigButton>
-              <BigButton
-                icon={<CircleX />}
-                variant="outline"
-                onClick={() => setDialog("lost")}
-              >
-                {translate("crm.followup.actions.lost")}
-              </BigButton>
-            </div>
-          ) : (
-            <p className="text-base text-muted-foreground">
-              {translate("crm.followup.review.waiting")}
-            </p>
-          )}
-        </Card>
-      ) : null}
+      <NextStepCard
+        deal={deal}
+        isAdmin={isAdmin}
+        onRegisterPrice={() => setDialog("quote")}
+        onAuthorize={() =>
+          save(
+            deal,
+            authorizePatch(),
+            translate("crm.followup.messages.authorized"),
+          )
+        }
+        onMarkSent={() =>
+          save(
+            deal,
+            markSentPatch({
+              deal,
+              today,
+              actionLabel: translate("crm.followup.defaults.ask_status"),
+            }),
+            translate("crm.followup.messages.sent"),
+          )
+        }
+      />
 
       {deal.stage === STAGE_PAUSED ? (
         <BigButton
@@ -356,8 +337,7 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
             >
               {translate("crm.followup.actions.won")}
             </BigButton>
-            {deal.stage !== STAGE_PAUSED &&
-            deal.stage !== STAGE_PENDING_REVIEW ? (
+            {deal.stage !== STAGE_PAUSED ? (
               <BigButton
                 icon={<CirclePause />}
                 variant="outline"
@@ -366,15 +346,13 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
                 {translate("crm.followup.actions.pause")}
               </BigButton>
             ) : null}
-            {deal.stage !== STAGE_PENDING_REVIEW ? (
-              <BigButton
-                icon={<CircleX />}
-                variant="outline"
-                onClick={() => setDialog("lost")}
-              >
-                {translate("crm.followup.actions.lost")}
-              </BigButton>
-            ) : null}
+            <BigButton
+              icon={<CircleX />}
+              variant="outline"
+              onClick={() => setDialog("lost")}
+            >
+              {translate("crm.followup.actions.lost")}
+            </BigButton>
             <BigButton
               icon={deal.reminders_muted ? <BellRing /> : <BellOff />}
               variant="ghost"
@@ -410,6 +388,62 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
       <LostDialog {...dialogProps("lost")} />
       <QuoteDialog {...dialogProps("quote")} />
     </div>
+  );
+};
+
+/**
+ * The one thing to do next while the quote has not reached the client:
+ * register the price, authorize it, then mark it as sent.
+ */
+const NextStepCard = ({
+  deal,
+  isAdmin,
+  onRegisterPrice,
+  onAuthorize,
+  onMarkSent,
+}: {
+  deal: Deal;
+  isAdmin: boolean;
+  onRegisterPrice: () => void;
+  onAuthorize: () => void;
+  onMarkSent: () => void;
+}) => {
+  const translate = useTranslate();
+  let text: string;
+  let button: ReactNode = null;
+  if (deal.stage === STAGE_TO_QUOTE) {
+    text = translate("crm.followup.steps.to_quote");
+    button = (
+      <BigButton icon={<FileText />} onClick={onRegisterPrice}>
+        {translate("crm.followup.actions.register_price")}
+      </BigButton>
+    );
+  } else if (deal.stage === STAGE_TO_AUTHORIZE) {
+    text = translate(
+      isAdmin
+        ? "crm.followup.steps.to_authorize"
+        : "crm.followup.steps.waiting_authorization",
+    );
+    button = isAdmin ? (
+      <BigButton icon={<BadgeCheck />} onClick={onAuthorize}>
+        {translate("crm.followup.actions.authorize")}
+      </BigButton>
+    ) : null;
+  } else if (deal.stage === STAGE_READY_TO_SEND) {
+    text = translate("crm.followup.steps.ready_to_send");
+    button = (
+      <BigButton icon={<Send />} onClick={onMarkSent}>
+        {translate("crm.followup.actions.mark_sent")}
+      </BigButton>
+    );
+  } else {
+    return null;
+  }
+  return (
+    <Card className="p-5 gap-3 border-sky-300 bg-sky-50 dark:bg-sky-950/30">
+      <p className="text-base font-medium">{text}</p>
+      {button}
+    </Card>
   );
 };
 

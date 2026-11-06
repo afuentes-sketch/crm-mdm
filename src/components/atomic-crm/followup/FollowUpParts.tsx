@@ -10,7 +10,9 @@ import type { FollowUpGroup } from "./followUpRules";
 
 /** Color code of each group, also used as a left border on the cards. */
 export const GROUP_STYLES: Record<FollowUpGroup, string> = {
-  review: "border-l-purple-500",
+  to_quote: "border-l-slate-500",
+  to_authorize: "border-l-purple-500",
+  ready_to_send: "border-l-green-500",
   resume: "border-l-blue-500",
   overdue: "border-l-red-500",
   this_week: "border-l-amber-500",
@@ -22,7 +24,9 @@ export const GROUP_STYLES: Record<FollowUpGroup, string> = {
 };
 
 export const GROUP_DOT: Record<FollowUpGroup, string> = {
-  review: "bg-purple-500",
+  to_quote: "bg-slate-500",
+  to_authorize: "bg-purple-500",
+  ready_to_send: "bg-green-500",
   resume: "bg-blue-500",
   overdue: "bg-red-500",
   this_week: "bg-amber-500",

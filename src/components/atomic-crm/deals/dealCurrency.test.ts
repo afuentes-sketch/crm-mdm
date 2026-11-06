@@ -29,9 +29,9 @@ describe("dealCurrency", () => {
   // Intl separates the code with a non-breaking space
   const normalize = (text: string) => text.replace(/\s/g, " ");
 
-  it("shows the currency code next to each amount", () => {
+  it("shows each amount as a price followed by its currency", () => {
     expect(normalize(formatDealAmount(12500, "USD", "en-US"))).toBe(
-      "USD 12,500",
+      "$12,500 USD",
     );
     expect(
       normalize(
@@ -43,6 +43,6 @@ describe("dealCurrency", () => {
           "en-US",
         ),
       ),
-    ).toBe("MXN 250K · USD 12K");
+    ).toBe("$250K MXN · $12K USD");
   });
 });

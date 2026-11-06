@@ -18,7 +18,7 @@ const renderFollowUp = async (path: string, deal: Partial<Deal> = {}) => {
         buildDeal({
           id: 1,
           name: "Belt line",
-          stage: "negotiation",
+          stage: "sent",
           ...deal,
         }),
       ],
@@ -47,27 +47,33 @@ const getHistory = async (dataProvider: DataProvider) =>
   ).data;
 
 describe("FollowUpShow", () => {
-  it("records each unanswered attempt and sends the deal to review on the third", async () => {
-    const { screen, dataProvider } = await renderFollowUp("/seguimiento/1");
+  it("guides a deal from price to authorization to sent", async () => {
+    const { screen, dataProvider } = await renderFollowUp("/seguimiento/1", {
+      stage: "to-quote",
+    });
 
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      await screen.getByRole("button", { name: "Register contact" }).click();
-      await screen.getByRole("radio", { name: "Call" }).click();
-      await screen.getByRole("radio", { name: "No answer" }).click();
-      await screen.getByRole("button", { name: "Save" }).click();
-      await expect
-        .poll(async () => (await getHistory(dataProvider)).length)
-        .toBe(attempt);
-    }
-
+    await screen.getByRole("button", { name: "Register the price" }).click();
+    await screen.getByLabelText("Quote amount").fill("85000");
+    await screen.getByRole("button", { name: "Save" }).click();
     await expect
       .poll(async () => (await getDeal(dataProvider)).stage)
-      .toBe("pending-review");
-    const history = await getHistory(dataProvider);
-    expect(history.every((activity) => !activity.answered)).toBe(true);
+      .toBe("to-authorize");
+
+    await screen.getByRole("button", { name: "Authorize" }).click();
     await expect
-      .element(screen.getByRole("button", { name: "Keep trying" }))
-      .toBeVisible();
+      .poll(async () => (await getDeal(dataProvider)).stage)
+      .toBe("ready-to-send");
+
+    await screen
+      .getByRole("button", { name: "Mark as sent to the client" })
+      .click();
+    await expect
+      .poll(async () => (await getDeal(dataProvider)).stage)
+      .toBe("sent");
+    const deal = await getDeal(dataProvider);
+    expect(deal.amount).toBe(85000);
+    expect(deal.next_action_date).not.toBeNull();
+    expect(deal.quote_sent_date).not.toBeNull();
   });
 
   it("plans the next attempt one week later when the client does not answer", async () => {
@@ -129,14 +135,16 @@ describe("FollowUpShow", () => {
 
   it("changes the status in the same step as an answered contact", async () => {
     const { screen, dataProvider } = await renderFollowUp("/seguimiento/1", {
-      stage: "pending-quote",
+      stage: "to-quote",
     });
 
     await screen.getByRole("button", { name: "Register contact" }).click();
     await screen.getByRole("radio", { name: "Call" }).click();
     await screen.getByRole("radio", { name: "Yes, they answered" }).click();
     await screen.getByLabelText("Stage").click();
-    await screen.getByRole("option", { name: "Cotización enviada" }).click();
+    await screen
+      .getByRole("option", { name: "Enviada · en seguimiento" })
+      .click();
     await screen
       .getByLabelText(/Next action/)
       .fill("Call to discuss the quote");
@@ -144,7 +152,7 @@ describe("FollowUpShow", () => {
 
     await expect
       .poll(async () => (await getDeal(dataProvider)).stage)
-      .toBe("quote-sent");
+      .toBe("sent");
     const [activity] = await getHistory(dataProvider);
     expect(activity.answered).toBe(true);
   });
