@@ -1,9 +1,4 @@
-import {
-  ResourceContextProvider,
-  ShowBase,
-  useDataProvider,
-  type DataProvider,
-} from "ra-core";
+import { ResourceContextProvider, ShowBase } from "ra-core";
 import { useQueryClient } from "@tanstack/react-query";
 import { render } from "vitest-browser-react";
 import { createDataProvider } from "@/components/atomic-crm/providers/fakerest";
@@ -180,20 +175,12 @@ describe("ContactShow", () => {
       .toBeVisible();
   });
 
-  it("updates the contact status from the aside", async () => {
+  it("shows the status computed from the deals, without a selector", async () => {
     mockIsMobile.mockReturnValue(false);
-
-    let dataProvider: DataProvider | null = null;
     const contact = buildContact({ status: "warm" });
-
-    const DataProviderListener = () => {
-      dataProvider = useDataProvider();
-      return null;
-    };
 
     const screen = await render(
       <StoryWrapper data={{ contacts: [contact] }}>
-        <DataProviderListener />
         <ResourceContextProvider value="contacts">
           <ShowBase id={contact.id}>
             <ContactAside />
@@ -202,24 +189,12 @@ describe("ContactShow", () => {
       </StoryWrapper>,
     );
 
+    await expect.element(screen.getByText("Tibio")).toBeVisible();
     await expect
-      .element(screen.getByRole("combobox"))
-      .toHaveTextContent("Tibio");
-
-    await screen.getByRole("combobox").click();
-    await screen.getByRole("option", { name: /caliente/i }).click();
-
-    await expect
-      .poll(async () => {
-        const { data } = await dataProvider!.getOne("contacts", {
-          id: contact.id,
-        });
-        return data.status;
-      })
-      .toBe("hot");
-
-    await expect
-      .element(screen.getByRole("combobox"))
-      .toHaveTextContent("Caliente");
+      .element(
+        screen.getByText("Updated automatically from the contact's deals"),
+      )
+      .toBeVisible();
+    await expect.element(screen.getByRole("combobox")).not.toBeInTheDocument();
   });
 });

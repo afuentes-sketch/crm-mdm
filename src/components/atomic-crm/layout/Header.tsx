@@ -63,6 +63,13 @@ const Header = () => {
                     isActive={currentPath === "/"}
                   />
                   <NavigationTab
+                    label={translate("resources.deals.name", {
+                      smart_count: 2,
+                    })}
+                    to="/deals"
+                    isActive={currentPath === "/deals"}
+                  />
+                  <NavigationTab
                     label={translate("resources.contacts.name", {
                       smart_count: 2,
                     })}
@@ -75,13 +82,6 @@ const Header = () => {
                     })}
                     to="/companies"
                     isActive={currentPath === "/companies"}
-                  />
-                  <NavigationTab
-                    label={translate("resources.deals.name", {
-                      smart_count: 2,
-                    })}
-                    to="/deals"
-                    isActive={currentPath === "/deals"}
                   />
                   <NavigationTab
                     label={translate("crm.followup.title")}

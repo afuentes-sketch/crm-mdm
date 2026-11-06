@@ -24,7 +24,9 @@ export const formatDealAmount = (
   locale: string,
   { compact = false }: { compact?: boolean } = {},
 ): string => {
-  const price = amount.toLocaleString(locale, {
+  // MDM is in Mexico: Spanish amounts use the Mexican format ($1,400.50)
+  const formatLocale = locale.startsWith("es") ? "es-MX" : locale;
+  const price = amount.toLocaleString(formatLocale, {
     style: "currency",
     currency,
     currencyDisplay: "narrowSymbol",

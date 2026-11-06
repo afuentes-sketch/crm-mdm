@@ -108,6 +108,7 @@ export const spanishCrmMessages = {
         followed_by_you: "Seguido por ti",
         status_none: "Ninguno",
       },
+      status_auto_hint: "Se actualiza solo según sus oportunidades",
       position_at: "%{title} en",
       position_at_company: "%{title} en %{company}",
       empty: {

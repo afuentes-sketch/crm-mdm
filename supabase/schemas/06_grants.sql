@@ -65,6 +65,12 @@ grant all on function public.set_sales_id_default() to anon;
 grant all on function public.set_sales_id_default() to authenticated;
 grant all on function public.set_sales_id_default() to service_role;
 
+revoke all on function public.refresh_contact_status(bigint[]) from public, anon;
+grant execute on function public.refresh_contact_status(bigint[]) to authenticated, service_role;
+
+revoke all on function public.handle_deal_contact_status() from public, anon;
+grant execute on function public.handle_deal_contact_status() to authenticated, service_role;
+
 -- Table grants
 grant all on table public.companies to anon;
 grant all on table public.companies to authenticated;

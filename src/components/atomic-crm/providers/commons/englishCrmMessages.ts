@@ -106,6 +106,7 @@ export const englishCrmMessages = {
         followed_by_you: "Followed by you",
         status_none: "None",
       },
+      status_auto_hint: "Updated automatically from the contact's deals",
       position_at: "%{title} at",
       position_at_company: "%{title} at %{company}",
       empty: {

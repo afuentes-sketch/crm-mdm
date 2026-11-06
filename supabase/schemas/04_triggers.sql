@@ -87,3 +87,8 @@ create or replace trigger on_auth_user_created
 create or replace trigger on_auth_user_updated
     after update on auth.users
     for each row execute function public.handle_update_user();
+
+-- Recompute the status (cold / warm / hot / in contract) of a deal's contacts
+create or replace trigger on_deal_changed_refresh_contact_status
+    after insert or delete or update of stage, contact_ids, archived_at on public.deals
+    for each row execute function public.handle_deal_contact_status();

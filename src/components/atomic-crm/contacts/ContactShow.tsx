@@ -24,7 +24,7 @@ import { NoteCreate, NotesIterator, NotesIteratorMobile } from "../notes";
 import { NoteCreateSheet } from "../notes/NoteCreateSheet";
 import { TagsListEdit } from "./TagsListEdit";
 import { ContactEditSheet } from "./ContactEditSheet";
-import { ContactStatusSelector } from "./ContactInputs";
+import { ContactStatusBadge } from "./ContactStatusBadge";
 import { ContactPersonalInfo } from "./ContactPersonalInfo";
 import { ContactBackgroundInfo } from "./ContactBackgroundInfo";
 import { ContactTasksList } from "./ContactTasksList";
@@ -209,7 +209,7 @@ const ContactShowContentMobile = () => {
                 },
               }}
             >
-              <NotesIteratorMobile contactId={record.id} showStatus />
+              <NotesIteratorMobile contactId={record.id} />
             </InfiniteListBase>
           </TabsContent>
 
@@ -225,7 +225,7 @@ const ContactShowContentMobile = () => {
                 </h3>
                 <Separator />
                 <div className="mt-3">
-                  <ContactStatusSelector />
+                  <ContactStatusBadge />
                 </div>
               </div>
               <div>
@@ -324,7 +324,7 @@ const ContactShowContent = () => {
                 <NoteCreate reference="contacts" showStatus className="mt-4" />
               }
             >
-              <NotesIterator reference="contacts" showStatus />
+              <NotesIterator reference="contacts" />
             </InfiniteListBase>
           </CardContent>
         </Card>

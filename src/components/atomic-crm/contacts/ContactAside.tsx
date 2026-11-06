@@ -7,7 +7,7 @@ import { ShowButton } from "@/components/admin/show-button";
 import { AddTask } from "../tasks/AddTask";
 import { TasksIterator } from "../tasks/TasksIterator";
 import { TagsListEdit } from "./TagsListEdit";
-import { ContactStatusSelector } from "./ContactInputs";
+import { ContactStatusBadge } from "./ContactStatusBadge";
 import { ContactPersonalInfo } from "./ContactPersonalInfo";
 import { ContactBackgroundInfo } from "./ContactBackgroundInfo";
 import { AsideSection } from "../misc/AsideSection";
@@ -32,7 +32,7 @@ export const ContactAside = ({ link = "edit" }: { link?: "edit" | "show" }) => {
       </div>
 
       <AsideSection title={translate("resources.notes.fields.status")}>
-        <ContactStatusSelector />
+        <ContactStatusBadge />
       </AsideSection>
 
       <AsideSection

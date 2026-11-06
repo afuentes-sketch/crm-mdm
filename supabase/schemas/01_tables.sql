@@ -43,7 +43,8 @@ create table public.contacts (
     first_seen timestamp with time zone,
     last_seen timestamp with time zone,
     has_newsletter boolean,
-    status text,
+    -- cold / warm / hot / in-contract, computed from the deals (02_functions.sql)
+    status text default 'cold',
     tags bigint[],
     company_id bigint,
     sales_id bigint,

@@ -17,12 +17,12 @@ export const DealColumn = ({
   const { dealStages } = useConfigurationContext();
   const [locale = "en"] = useLocaleState();
   return (
-    <div className="flex-1 pb-8">
-      <div className="flex flex-col items-center">
-        <h3 className="text-base font-medium">
+    <div className="flex-1 min-w-48 pb-8">
+      <div className="flex flex-col items-center gap-0.5 rounded-xl bg-muted/60 px-2 py-2 text-center">
+        <h3 className="text-sm font-semibold leading-tight">
           {findDealLabel(dealStages, stage)}
         </h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {formatTotalsByCurrency(deals, locale)}
         </p>
       </div>

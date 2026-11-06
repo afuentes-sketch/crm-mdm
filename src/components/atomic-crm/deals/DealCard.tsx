@@ -1,13 +1,10 @@
 import { Draggable } from "@hello-pangea/dnd";
-import { useLocaleState, useRedirect, RecordContextProvider } from "ra-core";
+import { useRedirect, RecordContextProvider } from "ra-core";
 import { ReferenceField } from "@/components/admin/reference-field";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { CompanyAvatar } from "../companies/CompanyAvatar";
-import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal } from "../types";
-import { formatDealAmount, getDealCurrency } from "./dealCurrency";
-import { formatDealCategories } from "./dealUtils";
 
 export const DealCard = ({ deal, index }: { deal: Deal; index: number }) => {
   if (!deal) return null;
@@ -30,8 +27,6 @@ export const DealCardContent = ({
   snapshot?: any;
   deal: Deal;
 }) => {
-  const { dealCategories } = useConfigurationContext();
-  const [locale = "en"] = useLocaleState();
   const redirect = useRedirect();
   const handleClick = () => {
     redirect(`/deals/${deal.id}/show`, undefined, undefined, undefined, {
@@ -49,23 +44,17 @@ export const DealCardContent = ({
     >
       <RecordContextProvider value={deal}>
         <Card
-          className={`py-3 transition-all duration-200 ${
+          className={`py-3 gap-0 transition-all duration-200 ${
             snapshot?.isDragging
-              ? "opacity-90 transform rotate-1 shadow-lg"
-              : "shadow-sm hover:shadow-md"
+              ? "opacity-90 rotate-1 shadow-lg"
+              : "shadow-sm hover:shadow-md hover:border-primary/40"
           }`}
         >
-          <CardContent className="px-3 flex flex-col">
-            <div className="flex-1 flex">
-              <p className="flex-1 text-sm font-medium mb-2">
-                <ReferenceField
-                  source="company_id"
-                  reference="companies"
-                  link={false}
-                />
-                {" - "}
-                {deal.name}
-              </p>
+          <CardContent className="px-3 flex flex-col gap-1.5">
+            <p className="text-sm font-semibold leading-snug break-words">
+              {deal.name}
+            </p>
+            <div className="flex items-center gap-1.5 min-w-0">
               <ReferenceField
                 source="company_id"
                 reference="companies"
@@ -73,14 +62,14 @@ export const DealCardContent = ({
               >
                 <CompanyAvatar width={20} height={20} />
               </ReferenceField>
+              <span className="text-xs text-muted-foreground leading-snug break-words min-w-0">
+                <ReferenceField
+                  source="company_id"
+                  reference="companies"
+                  link={false}
+                />
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {formatDealAmount(deal.amount, getDealCurrency(deal), locale, {
-                compact: true,
-              })}
-              {deal.categories?.length ? ", " : ""}
-              {formatDealCategories(dealCategories, deal.categories)}
-            </p>
           </CardContent>
         </Card>
       </RecordContextProvider>
