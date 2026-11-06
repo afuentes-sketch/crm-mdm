@@ -792,6 +792,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/dashboard/ContactStatusBoard.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/contacts/useRecentContacts.ts",
           "type": "registry:component"
         },
