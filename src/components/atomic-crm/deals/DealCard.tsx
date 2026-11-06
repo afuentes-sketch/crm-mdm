@@ -1,6 +1,9 @@
 import { Draggable } from "@hello-pangea/dnd";
 import { useLocaleState, useRedirect, RecordContextProvider } from "ra-core";
+import { ReferenceField } from "@/components/admin/reference-field";
 import { Card, CardContent } from "@/components/ui/card";
+
+import { CompanyAvatar } from "../companies/CompanyAvatar";
 
 import type { Deal } from "../types";
 import { formatDealAmount, getDealCurrency } from "./dealCurrency";
@@ -44,21 +47,31 @@ export const DealCardContent = ({
     >
       <RecordContextProvider value={deal}>
         <Card
-          className={`py-2 gap-0 rounded-lg transition-all duration-200 ${
+          className={`py-1.5 gap-0 rounded-md transition-all duration-200 ${
             snapshot?.isDragging
               ? "opacity-90 rotate-1 shadow-lg"
               : "shadow-sm hover:shadow-md hover:border-primary/40"
           }`}
         >
-          <CardContent className="px-3 flex flex-col">
-            <p className="text-sm font-semibold leading-snug break-words">
-              {deal.name}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {formatDealAmount(deal.amount, getDealCurrency(deal), locale, {
-                compact: true,
-              })}
-            </p>
+          <CardContent className="px-2.5 flex flex-row items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold leading-tight break-words">
+                {deal.name}
+              </p>
+              <p className="text-[11px] leading-tight text-muted-foreground mt-0.5">
+                {formatDealAmount(deal.amount, getDealCurrency(deal), locale, {
+                  compact: true,
+                })}
+              </p>
+            </div>
+            {/* Colored initial of the company, as on the original cards */}
+            <ReferenceField
+              source="company_id"
+              reference="companies"
+              link={false}
+            >
+              <CompanyAvatar width={20} height={20} />
+            </ReferenceField>
           </CardContent>
         </Card>
       </RecordContextProvider>

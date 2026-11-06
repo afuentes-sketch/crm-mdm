@@ -17,7 +17,7 @@ export const DealColumn = ({
   const { dealStages } = useConfigurationContext();
   const [locale = "en"] = useLocaleState();
   return (
-    <div className="flex-1 min-w-40 pb-8">
+    <div className="flex-1 min-w-36 pb-8">
       <div className="flex flex-col items-center gap-0.5 rounded-xl bg-muted/60 px-2 py-2 text-center">
         <h3 className="text-sm font-semibold leading-tight">
           {findDealLabel(dealStages, stage)}
@@ -31,7 +31,7 @@ export const DealColumn = ({
           <div
             ref={droppableProvided.innerRef}
             {...droppableProvided.droppableProps}
-            className={`flex flex-col rounded-2xl mt-2 gap-2 ${
+            className={`flex flex-col rounded-2xl mt-2 gap-1.5 ${
               snapshot.isDraggingOver ? "bg-muted" : ""
             }`}
           >
