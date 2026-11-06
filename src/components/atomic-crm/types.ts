@@ -144,6 +144,8 @@ export type Deal = {
   quote_amount?: number | null;
   quote_url?: string | null;
   quote_sent_date?: string | null;
+  /** "MXN" or "USD": the currency of the amount and of the quote. */
+  currency?: string | null;
 } & Pick<RaRecord, "id">;
 
 export type DealActivityChannel = "call" | "whatsapp" | "email" | "visit";

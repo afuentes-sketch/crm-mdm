@@ -3,6 +3,7 @@ import { useLocaleState } from "ra-core";
 
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal } from "../types";
+import { formatTotalsByCurrency } from "./dealCurrency";
 import { findDealLabel } from "./dealUtils";
 import { DealCard } from "./DealCard";
 
@@ -13,8 +14,7 @@ export const DealColumn = ({
   stage: string;
   deals: Deal[];
 }) => {
-  const totalAmount = deals.reduce((sum, deal) => sum + deal.amount, 0);
-  const { dealStages, currency } = useConfigurationContext();
+  const { dealStages } = useConfigurationContext();
   const [locale = "en"] = useLocaleState();
   return (
     <div className="flex-1 pb-8">
@@ -23,13 +23,7 @@ export const DealColumn = ({
           {findDealLabel(dealStages, stage)}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {totalAmount.toLocaleString(locale, {
-            notation: "compact",
-            style: "currency",
-            currency,
-            currencyDisplay: "narrowSymbol",
-            minimumSignificantDigits: 3,
-          })}
+          {formatTotalsByCurrency(deals, locale)}
         </p>
       </div>
       <Droppable droppableId={stage}>

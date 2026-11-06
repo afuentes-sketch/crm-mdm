@@ -163,4 +163,18 @@ describe("FollowUpShow", () => {
       .toBe(85000);
     expect((await getDeal(dataProvider)).quote_amount).toBe(85000);
   });
+
+  it("records a quote in dollars as the deal amount and currency", async () => {
+    const { screen, dataProvider } = await renderFollowUp("/seguimiento/1");
+
+    await screen.getByRole("button", { name: "Quote", exact: true }).click();
+    await screen.getByRole("radio", { name: "USD" }).click();
+    await screen.getByLabelText("Quote amount").fill("12000");
+    await screen.getByRole("button", { name: "Save" }).click();
+
+    await expect
+      .poll(async () => (await getDeal(dataProvider)).currency)
+      .toBe("USD");
+    expect((await getDeal(dataProvider)).amount).toBe(12000);
+  });
 });

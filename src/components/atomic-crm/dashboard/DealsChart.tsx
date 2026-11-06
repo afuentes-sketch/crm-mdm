@@ -2,8 +2,16 @@ import { ResponsiveBar } from "@nivo/bar";
 import { format, startOfMonth } from "date-fns";
 import { TrendingUp } from "lucide-react";
 import { useGetList, useLocaleState, useTranslate } from "ra-core";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 
+import {
+  DEFAULT_DEAL_CURRENCY,
+  formatDealAmount,
+  getDealCurrency,
+  sumByCurrency,
+  type DealCurrency,
+} from "../deals/dealCurrency";
 import { findDealLabel } from "../deals/dealUtils";
 import { getDateFnsLocale } from "../misc/RelativeDate";
 import { useConfigurationContext } from "../root/ConfigurationContext";
@@ -25,15 +33,10 @@ const threeMonthsAgo = new Date(
   new Date().setMonth(new Date().getMonth() - 6),
 ).toISOString();
 
-const DEFAULT_LOCALE = "en-US";
-
 export const DealsChart = memo(() => {
   const translate = useTranslate();
-  const { dealStages, currency } = useConfigurationContext();
+  const { dealStages } = useConfigurationContext();
   const [locale = "en"] = useLocaleState();
-  const acceptedLanguages = navigator
-    ? navigator.languages || [navigator.language]
-    : [DEFAULT_LOCALE];
   const wonLabel = findDealLabel(dealStages, "won") ?? "Won";
   const lostLabel = findDealLabel(dealStages, "lost") ?? "Lost";
 
@@ -47,9 +50,23 @@ export const DealsChart = memo(() => {
       "created_at@gte": threeMonthsAgo,
     },
   });
+  // Pesos and dollars are never added up: the chart shows one currency
+  const currencies = useMemo(
+    () => sumByCurrency(data ?? []).map(({ currency }) => currency),
+    [data],
+  );
+  const [selectedCurrency, setSelectedCurrency] = useState<DealCurrency>();
+  const currency: DealCurrency =
+    selectedCurrency && currencies.includes(selectedCurrency)
+      ? selectedCurrency
+      : (currencies[0] ?? DEFAULT_DEAL_CURRENCY);
+
   const months = useMemo(() => {
     if (!data) return [];
-    const dealsByMonth = data.reduce((acc, deal) => {
+    const currencyDeals = data.filter(
+      (deal) => getDealCurrency(deal) === currency,
+    );
+    const dealsByMonth = currencyDeals.reduce((acc, deal) => {
       const month = startOfMonth(deal.created_at ?? new Date()).toISOString();
       if (!acc[month]) {
         acc[month] = [];
@@ -84,7 +101,7 @@ export const DealsChart = memo(() => {
     });
 
     return amountByMonth;
-  }, [data, locale]);
+  }, [data, locale, currency]);
 
   if (isPending) return null; // FIXME return skeleton instead
   const range = months.reduce(
@@ -101,9 +118,24 @@ export const DealsChart = memo(() => {
         <div className="mr-3 flex">
           <TrendingUp className="text-muted-foreground w-6 h-6" />
         </div>
-        <h2 className="text-xl font-semibold text-muted-foreground">
+        <h2 className="text-xl font-semibold text-muted-foreground flex-1">
           {translate("crm.dashboard.deals_chart")}
         </h2>
+        {currencies.length > 1 ? (
+          <div className="flex gap-1" role="group">
+            {currencies.map((code) => (
+              <Button
+                key={code}
+                size="sm"
+                variant={code === currency ? "default" : "outline"}
+                aria-pressed={code === currency}
+                onClick={() => setSelectedCurrency(code)}
+              >
+                {code}
+              </Button>
+            ))}
+          </div>
+        ) : null}
       </div>
       <div className="h-[400px]">
         <ResponsiveBar
@@ -125,10 +157,7 @@ export const DealsChart = memo(() => {
           tooltip={({ value, indexValue }) => (
             <div className="p-2 bg-secondary rounded shadow inline-flex items-center gap-1 text-secondary-foreground">
               <strong>{indexValue}: </strong>&nbsp;{value > 0 ? "+" : ""}
-              {value.toLocaleString(acceptedLanguages.at(0) ?? DEFAULT_LOCALE, {
-                style: "currency",
-                currency,
-              })}
+              {formatDealAmount(value, currency, locale)}
             </div>
           )}
           axisTop={{

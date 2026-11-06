@@ -195,6 +195,7 @@ export const englishCrmMessages = {
         expected_closing_date: "Expected closing date",
         stage: "Stage",
         sales_id: "Assigned to",
+        currency: "Currency",
       },
       action: {
         back_to_deal: "Back to deal",

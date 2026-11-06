@@ -12,6 +12,12 @@ import {
   toText,
 } from "./parseCell";
 import type { ImportRow, ProcessImportBatch } from "./types";
+import { DEAL_CURRENCIES } from "../deals/dealCurrency";
+
+const CURRENCY_OPTIONS = DEAL_CURRENCIES.map((code) => ({
+  value: code,
+  label: code,
+}));
 
 /** One CSV row, with the values needed before its deal can be created. */
 type DealRow = {
@@ -66,6 +72,12 @@ export function useDealImport(): ProcessImportBatch {
               description: toText(row.description),
               // amount lands in a bigint column, which rejects "4500.50"
               amount: toInteger(row.amount),
+              // "MXN" or "USD"; anything else keeps the default (MXN)
+              ...(toConfiguredValue(row.currency, CURRENCY_OPTIONS)
+                ? {
+                    currency: toConfiguredValue(row.currency, CURRENCY_OPTIONS),
+                  }
+                : {}),
               expected_closing_date: toIsoDate(row.expected_closing_date),
               sales_id: identity?.id,
               index: indexes.get(row) ?? 0,

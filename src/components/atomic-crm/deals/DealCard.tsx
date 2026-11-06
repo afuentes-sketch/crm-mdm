@@ -1,12 +1,12 @@
 import { Draggable } from "@hello-pangea/dnd";
-import { useRedirect, RecordContextProvider } from "ra-core";
+import { useLocaleState, useRedirect, RecordContextProvider } from "ra-core";
 import { ReferenceField } from "@/components/admin/reference-field";
-import { NumberField } from "@/components/admin/number-field";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { CompanyAvatar } from "../companies/CompanyAvatar";
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal } from "../types";
+import { formatDealAmount, getDealCurrency } from "./dealCurrency";
 import { formatDealCategories } from "./dealUtils";
 
 export const DealCard = ({ deal, index }: { deal: Deal; index: number }) => {
@@ -30,7 +30,8 @@ export const DealCardContent = ({
   snapshot?: any;
   deal: Deal;
 }) => {
-  const { dealCategories, currency } = useConfigurationContext();
+  const { dealCategories } = useConfigurationContext();
+  const [locale = "en"] = useLocaleState();
   const redirect = useRedirect();
   const handleClick = () => {
     redirect(`/deals/${deal.id}/show`, undefined, undefined, undefined, {
@@ -74,16 +75,9 @@ export const DealCardContent = ({
               </ReferenceField>
             </div>
             <p className="text-xs text-muted-foreground">
-              <NumberField
-                source="amount"
-                options={{
-                  notation: "compact",
-                  style: "currency",
-                  currency,
-                  currencyDisplay: "narrowSymbol",
-                  minimumSignificantDigits: 3,
-                }}
-              />
+              {formatDealAmount(deal.amount, getDealCurrency(deal), locale, {
+                compact: true,
+              })}
               {deal.categories?.length ? ", " : ""}
               {formatDealCategories(dealCategories, deal.categories)}
             </p>

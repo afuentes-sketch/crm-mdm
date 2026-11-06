@@ -198,6 +198,7 @@ export const spanishCrmMessages = {
         expected_closing_date: "Fecha estimada de cierre",
         stage: "Estatus",
         sales_id: "Asignado a",
+        currency: "Moneda",
       },
       action: {
         back_to_deal: "Volver a la oportunidad",

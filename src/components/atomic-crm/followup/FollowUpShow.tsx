@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 
 import { MobileContent } from "../layout/MobileContent";
 import MobileHeader from "../layout/MobileHeader";
-import { useConfigurationContext } from "../root/ConfigurationContext";
+import { formatDealAmount, getDealCurrency } from "../deals/dealCurrency";
 import type { Company, Contact, Deal, DealActivity } from "../types";
 import {
   LostDialog,
@@ -130,7 +130,6 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
   const formatDate = useFormatDate();
   const salesById = useSalesById();
   const { save } = useDealUpdater();
-  const { currency } = useConfigurationContext();
   const [locale = "en"] = useLocaleState();
   const [searchParams, setSearchParams] = useSearchParams();
   const [dialog, setDialog] = useState<DialogName>();
@@ -243,10 +242,7 @@ const FollowUpShowContent = ({ deal }: { deal: Deal }) => {
                 deal.quote_number
               )}
               {deal.quote_amount != null
-                ? ` · ${deal.quote_amount.toLocaleString(locale, {
-                    style: "currency",
-                    currency,
-                  })}`
+                ? ` · ${formatDealAmount(deal.quote_amount, getDealCurrency(deal), locale)}`
                 : null}
               {deal.quote_sent_date
                 ? ` · ${formatDate(deal.quote_sent_date)}`

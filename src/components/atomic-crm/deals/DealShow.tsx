@@ -31,6 +31,7 @@ import { NotesIterator } from "../notes/NotesIterator";
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal } from "../types";
 import { ContactList } from "./ContactList";
+import { formatDealAmount, getDealCurrency } from "./dealCurrency";
 import {
   findDealLabel,
   formatDealCategories,
@@ -58,7 +59,7 @@ export const DealShow = ({ open, id }: { open: boolean; id?: string }) => {
 
 const DealShowContent = () => {
   const translate = useTranslate();
-  const { dealStages, dealCategories, currency } = useConfigurationContext();
+  const { dealStages, dealCategories } = useConfigurationContext();
   const [locale = "en"] = useLocaleState();
   const record = useRecordContext<Deal>();
   if (!record) return null;
@@ -126,13 +127,11 @@ const DealShowContent = () => {
                 {translate("resources.deals.fields.amount")}
               </span>
               <span className="text-sm">
-                {record.amount.toLocaleString(locale, {
-                  notation: "compact",
-                  style: "currency",
-                  currency,
-                  currencyDisplay: "narrowSymbol",
-                  minimumSignificantDigits: 3,
-                })}
+                {formatDealAmount(
+                  record.amount,
+                  getDealCurrency(record),
+                  locale,
+                )}
               </span>
             </div>
 

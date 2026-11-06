@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { isGuardedStage, STAGE_NEW } from "../followup/followUpRules";
+import { DEAL_CURRENCY_CHOICES, DEFAULT_DEAL_CURRENCY } from "./dealCurrency";
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal, Sale } from "../types";
 import { AutocompleteCompanyInput } from "../companies/AutocompleteCompanyInput.tsx";
@@ -85,12 +86,22 @@ const DealMiscInputs = () => {
         optionValue="value"
         helperText={false}
       />
-      <NumberInput
-        source="amount"
-        defaultValue={0}
-        helperText={false}
-        validate={required()}
-      />
+      <div className="grid grid-cols-[1fr_7rem] gap-2">
+        <NumberInput
+          source="amount"
+          defaultValue={0}
+          helperText={false}
+          validate={required()}
+        />
+        <SelectInput
+          source="currency"
+          label="resources.deals.fields.currency"
+          choices={DEAL_CURRENCY_CHOICES}
+          defaultValue={DEFAULT_DEAL_CURRENCY}
+          helperText={false}
+          validate={required()}
+        />
+      </div>
       <DateInput
         validate={required()}
         source="expected_closing_date"

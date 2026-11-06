@@ -91,7 +91,9 @@ create table public.deals (
     quote_number text,
     quote_amount bigint,
     quote_url text,
-    quote_sent_date date
+    quote_sent_date date,
+    currency text not null default 'MXN',
+    constraint deals_currency_check check (currency in ('MXN', 'USD'))
 );
 
 create table public.deal_notes (

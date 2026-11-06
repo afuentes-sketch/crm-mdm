@@ -14,6 +14,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import {
+  DEAL_CURRENCIES,
+  getDealCurrency,
+  type DealCurrency,
+} from "../deals/dealCurrency";
 import { formatISODateString } from "../deals/dealUtils";
 import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Deal, DealActivityChannel } from "../types";
@@ -401,9 +406,11 @@ export const QuoteDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
   const [quoteNumber, setQuoteNumber] = useState("");
   const [quoteAmount, setQuoteAmount] = useState("");
   const [quoteSentDate, setQuoteSentDate] = useState("");
+  const [currency, setCurrency] = useState<DealCurrency>(getDealCurrency(deal));
 
   useEffect(() => {
     if (!open) return;
+    setCurrency(getDealCurrency(deal));
     setQuoteUrl(deal.quote_url ?? "");
     setQuoteNumber(deal.quote_number ?? "");
     setQuoteAmount(deal.quote_amount != null ? String(deal.quote_amount) : "");
@@ -425,6 +432,7 @@ export const QuoteDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
             quote_amount: quoteAmount === "" ? null : Math.round(+quoteAmount),
             // One capture: the current quote is the deal's amount
             ...(quoteAmount === "" ? {} : { amount: Math.round(+quoteAmount) }),
+            currency,
             quote_sent_date: quoteSentDate || null,
           },
           translate("crm.followup.messages.saved"),
@@ -443,6 +451,12 @@ export const QuoteDialog = ({ deal, open, onOpenChange }: DealDialogProps) => {
         label={translate("crm.followup.fields.quote_number")}
         value={quoteNumber}
         onChange={setQuoteNumber}
+      />
+      <ChoiceButtons
+        label={translate("resources.deals.fields.currency")}
+        options={DEAL_CURRENCIES.map((code) => ({ value: code, label: code }))}
+        value={currency}
+        onChange={setCurrency}
       />
       <TextField
         id="quote-amount"

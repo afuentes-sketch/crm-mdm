@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { ActivityLog } from "../activity/ActivityLog";
 import { Avatar } from "../contacts/Avatar";
 import { TagsList } from "../contacts/TagsList";
+import { formatDealAmount, getDealCurrency } from "../deals/dealCurrency";
 import { findDealLabel, formatDealCategories } from "../deals/dealUtils";
 import { MobileContent } from "../layout/MobileContent";
 import MobileHeader from "../layout/MobileHeader";
@@ -266,7 +267,7 @@ const DealsIterator = () => {
   const translate = useTranslate();
   const [locale = "en"] = useLocaleState();
   const { data: deals, error, isPending } = useListContext<Deal>();
-  const { dealStages, dealCategories, currency } = useConfigurationContext();
+  const { dealStages, dealCategories } = useConfigurationContext();
   if (isPending || error) return null;
   return (
     <div>
@@ -281,13 +282,14 @@ const DealsIterator = () => {
                 <div className="font-medium">{deal.name}</div>
                 <div className="text-sm text-muted-foreground">
                   {findDealLabel(dealStages, deal.stage)},{" "}
-                  {deal.amount.toLocaleString(locale, {
-                    notation: "compact",
-                    style: "currency",
-                    currency,
-                    currencyDisplay: "narrowSymbol",
-                    minimumSignificantDigits: 3,
-                  })}
+                  {formatDealAmount(
+                    deal.amount,
+                    getDealCurrency(deal),
+                    locale,
+                    {
+                      compact: true,
+                    },
+                  )}
                   {deal.categories?.length
                     ? `, ${formatDealCategories(dealCategories, deal.categories)}`
                     : ""}
