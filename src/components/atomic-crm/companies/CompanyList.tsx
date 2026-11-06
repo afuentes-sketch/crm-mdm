@@ -1,4 +1,5 @@
 import { useGetIdentity, useListContext, useTranslate } from "ra-core";
+import { useEffect } from "react";
 import { CreateButton } from "@/components/admin/create-button";
 import { ExportButton } from "@/components/admin/export-button";
 import { List } from "@/components/admin/list";
@@ -27,9 +28,27 @@ export const CompanyList = () => {
   );
 };
 
+// Filters that no longer exist in the side panel. A user who used them before
+// still has them saved, which would hide companies with no way to undo it.
+const REMOVED_FILTERS = ["size", "sector"];
+
 const CompanyListLayout = () => {
-  const { data, isPending, filterValues } = useListContext();
+  const { data, isPending, filterValues, displayedFilters, setFilters } =
+    useListContext();
   const hasFilters = filterValues && Object.keys(filterValues).length > 0;
+  const hasRemovedFilter = REMOVED_FILTERS.some(
+    (key) => filterValues?.[key] !== undefined,
+  );
+
+  useEffect(() => {
+    if (!hasRemovedFilter) return;
+    const cleanFilters = Object.fromEntries(
+      Object.entries(filterValues).filter(
+        ([key]) => !REMOVED_FILTERS.includes(key),
+      ),
+    );
+    setFilters(cleanFilters, displayedFilters);
+  }, [hasRemovedFilter, filterValues, displayedFilters, setFilters]);
 
   if (isPending) return null;
   if (!data?.length && !hasFilters) return <CompanyEmpty />;
