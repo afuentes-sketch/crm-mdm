@@ -31,6 +31,7 @@ import { CRM } from "@/components/atomic-crm/root/CRM";
  *    />
  * );
  */
-const App = () => <CRM />;
+// No anonymous usage ping to the Atomic CRM authors
+const App = () => <CRM disableTelemetry />;
 
 export default App;
