@@ -398,7 +398,7 @@ export const spanishCrmMessages = {
         creating: "Creando...",
         initial_user_created: "Usuario inicial creado correctamente",
       },
-      welcome_title: "Bienvenido a Atomic CRM",
+      welcome_title: "Bienvenido a MDM CRM",
     },
     common: {
       account_manager: "Responsable de la cuenta",
@@ -444,7 +444,7 @@ export const spanishCrmMessages = {
       latest_notes: "Mis notas recientes",
       latest_notes_added_ago: "agregada %{timeAgo}",
       stepper: {
-        install: "Instalar Atomic CRM",
+        install: "Instalar MDM CRM",
         progress: "%{step}/3 completados",
         whats_next: "¿Qué sigue?",
       },
@@ -752,7 +752,7 @@ export const spanishCrmMessages = {
         "Otras direcciones desde las que envías correos. Deja una vacía para quitarla.",
       inbound: {
         description:
-          "Puedes enviar correos a la dirección de entrada de tu servidor, por ejemplo agregándola en el campo %{field}. Atomic CRM procesará los correos y agregará notas a los contactos correspondientes.",
+          "Puedes enviar correos a la dirección de entrada de tu servidor, por ejemplo agregándola en el campo %{field}. MDM CRM procesará los correos y agregará notas a los contactos correspondientes.",
         title: "Correo de entrada",
       },
       mcp: {

@@ -2,15 +2,15 @@ import type { ConfigurationContextValue } from "./ConfigurationContext";
 // Import the logos as module assets so Vite resolves their URL relative to the
 // JS chunk (import.meta.url), not the current route. A plain "./logos/..." path
 // breaks on nested routes like /oauth/consent and under a deployment sub-path.
-import darkModeLogo from "./logos/logo_atomic_crm_dark.svg";
-import lightModeLogo from "./logos/logo_atomic_crm_light.svg";
+import darkModeLogo from "./logos/logo_mdm_dark.png";
+import lightModeLogo from "./logos/logo_mdm_light.png";
 
 export const defaultDarkModeLogo = darkModeLogo;
 export const defaultLightModeLogo = lightModeLogo;
 
 export const defaultCurrency = "MXN";
 
-export const defaultTitle = "Atomic CRM";
+export const defaultTitle = "MDM CRM";
 
 // Labels are shown to users and are in Spanish (the app's default language).
 // Values are stored in the database and must stay stable.
