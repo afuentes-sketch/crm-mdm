@@ -738,6 +738,8 @@ export const spanishCrmMessages = {
     language: "Idioma",
     navigation: {
       label: "Navegación del CRM",
+      deals_short: "Ventas",
+      settings_short: "Ajustes",
     },
     profile: {
       add_secondary_email: "Agregar un correo",

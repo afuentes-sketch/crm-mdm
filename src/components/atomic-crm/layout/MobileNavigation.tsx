@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import {
+  Briefcase,
   Home,
   ListChecks,
-  ListTodo,
   Plus,
   Settings,
   Users,
@@ -21,6 +21,7 @@ import { useState } from "react";
 import { NoteCreateSheet } from "../notes/NoteCreateSheet";
 import { TaskCreateSheet } from "../tasks/TaskCreateSheet";
 import { FOLLOW_UP_PATH } from "../followup/followUpRules";
+import { MOBILE_DEALS_PATH } from "../deals/MobileDealList";
 
 export const MobileNavigation = () => {
   const location = useLocation();
@@ -37,6 +38,8 @@ export const MobileNavigation = () => {
     currentPath = "/tasks";
   } else if (matchPath("/deals/*", location.pathname)) {
     currentPath = "/deals";
+  } else if (matchPath(`${MOBILE_DEALS_PATH}/*`, location.pathname)) {
+    currentPath = MOBILE_DEALS_PATH;
   } else if (matchPath(`${FOLLOW_UP_PATH}/*`, location.pathname)) {
     currentPath = FOLLOW_UP_PATH;
   } else {
@@ -86,10 +89,10 @@ export const MobileNavigation = () => {
           />
           <CreateButton />
           <NavigationButton
-            href="/tasks"
-            Icon={ListTodo}
-            label={translate("resources.tasks.name", { smart_count: 2 })}
-            isActive={currentPath === "/tasks"}
+            href={MOBILE_DEALS_PATH}
+            Icon={Briefcase}
+            label={translate("crm.navigation.deals_short")}
+            isActive={currentPath === MOBILE_DEALS_PATH}
           />
           <SettingsButton />
         </>
@@ -198,7 +201,7 @@ const SettingsButton = () => {
     <NavigationButton
       href="/settings"
       Icon={Settings}
-      label={translate("crm.settings.title")}
+      label={translate("crm.navigation.settings_short")}
       isActive={isActive}
     />
   );

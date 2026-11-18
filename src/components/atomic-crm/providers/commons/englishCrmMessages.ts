@@ -730,6 +730,8 @@ export const englishCrmMessages = {
     language: "Language",
     navigation: {
       label: "CRM navigation",
+      deals_short: "Sales",
+      settings_short: "Settings",
     },
     profile: {
       add_secondary_email: "Add an email",

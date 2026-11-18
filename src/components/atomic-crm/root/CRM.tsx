@@ -37,6 +37,7 @@ import { SettingsPage } from "../settings/SettingsPage";
 import { FollowUpPage } from "../followup/FollowUpPage";
 import { FollowUpShow } from "../followup/FollowUpShow";
 import { FOLLOW_UP_PATH } from "../followup/followUpRules";
+import { MOBILE_DEALS_PATH, MobileDealList } from "../deals/MobileDealList";
 import {
   CONFIGURATION_STORE_KEY,
   type ConfigurationContextValue,
@@ -344,6 +345,7 @@ const MobileAdmin = (
           <Route path={ChangelogPage.path} element={<ChangelogPage />} />
           <Route path={FOLLOW_UP_PATH} element={<FollowUpPage />} />
           <Route path={`${FOLLOW_UP_PATH}/:id`} element={<FollowUpShow />} />
+          <Route path={MOBILE_DEALS_PATH} element={<MobileDealList />} />
         </CustomRoutes>
         <Resource name="deal_activities" />
         <Resource
