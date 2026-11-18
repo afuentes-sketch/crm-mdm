@@ -664,6 +664,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/deals/MobileDealList.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/deals/DealShow.tsx",
           "type": "registry:component"
         },
